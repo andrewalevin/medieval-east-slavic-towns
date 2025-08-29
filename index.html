@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>🏛 Medieval East Slavic Towns</title>
+    <title>Mapbox Towns Demo</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.14.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.14.0/mapbox-gl.js"></script>
@@ -115,7 +115,7 @@
         zoom: 4,
         projection: {
             name: 'lambertConformalConic',
-            center: [0, 30],
+            center: [50, 30],
             parallels: [30, 30]
         }
     });
@@ -123,24 +123,129 @@
     const towns = {
         "zvenigorod-galich": {
             title: "Звенигород Львовский",
-            coords: [24.246944, 49.732778], // lng, lat
+            coords: [49.732778, 24.246944],
             url: "https://ru.wikipedia.org/wiki/%D0%97%D0%B2%D0%B5%D0%BD%D0%B8%D0%B3%D0%BE%D1%80%D0%BE%D0%B4_(%D0%9B%D1%8C%D0%B2%D0%BE%D0%B2%D1%81%D0%BA%D0%B0%D1%8F_%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C)",
             year: 1086
         },
         "zvenigorod-moscow": {
             title: "Звенигород Московский",
-            coords: [36.85, 55.733333],
+            coords: [55.733333, 36.85],
             url: "https://ru.wikipedia.org/wiki/%D0%97%D0%B2%D0%B5%D0%BD%D0%B8%D0%B3%D0%BE%D1%80%D0%BE%D0%B4",
+            year: 1152
+        },
+        "zvenigorod-kiev": {
+            title: "Звенигород Киевский",
+            coords: [50.320833, 30.386111],
+            url: "https://ru.wikipedia.org/wiki/%D0%97%D0%B2%D0%B5%D0%BD%D0%B8%D0%B3%D0%BE%D1%80%D0%BE%D0%B4_%D0%9A%D0%B8%D0%B5%D0%B2%D1%81%D0%BA%D0%B8%D0%B9",
+            year: 1097
+        },
+        "galich-dniester": {
+            title: "Галич на Днестре",
+            coords: [49.112778, 24.721667],
+            url: "https://ru.wikipedia.org/wiki/%D0%93%D0%B0%D0%BB%D0%B8%D1%87_(%D0%98%D0%B2%D0%B0%D0%BD%D0%BE-%D0%A4%D1%80%D0%B0%D0%BD%D0%BA%D0%BE%D0%B2%D1%81%D0%BA%D0%B0%D1%8F_%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C)",
+            year: 1140
+        },
+        "galich-kostroma": {
+            title: "Галич на Костроме",
+            coords: [58.383333, 42.35],
+            url: "https://ru.wikipedia.org/wiki/%D0%93%D0%B0%D0%BB%D0%B8%D1%87_(%D0%A0%D0%BE%D1%81%D1%81%D0%B8%D1%8F)",
+            year: 1159
+        },
+        "vladimir-zalessky": {
+            title: "Владимир-Залесский",
+            coords: [56.133333, 40.416667],
+            url: "https://ru.wikipedia.org/wiki/%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%BC%D0%B8%D1%80_(%D0%B3%D0%BE%D1%80%D0%BE%D0%B4,_%D0%A0%D0%BE%D1%81%D1%81%D0%B8%D1%8F)",
+            year: 990
+        },
+        "vladimir-volynskyi": {
+            title: "Владимир Волынский",
+            coords: [50.848056, 24.322222],
+            url: "https://ru.wikipedia.org/wiki/%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%BC%D0%B8%D1%80_(%D0%A3%D0%BA%D1%80%D0%B0%D0%B8%D0%BD%D0%B0)",
+            year: 988
+        },
+        "yaroslavl-volga": {
+            title: "Ярославль на Волге",
+            coords: [57.616667, 39.85],
+            url: "https://ru.wikipedia.org/wiki/%D0%AF%D1%80%D0%BE%D1%81%D0%BB%D0%B0%D0%B2%D0%BB%D1%8C",
+            year: 1010
+        },
+        "yaroslavl-san": {
+            title: "Ярослав на Сане",
+            coords: [50.018611, 22.679722],
+            url: "https://ru.wikipedia.org/wiki/%D0%AF%D1%80%D0%BE%D1%81%D0%BB%D0%B0%D0%B2_(%D0%B3%D0%BE%D1%80%D0%BE%D0%B4)",
+            year: 1031
+        },
+        "pereslavl-zalessky": {
+            title: "Переславль-Залесский",
+            coords: [56.738133, 38.856153],
+            url: "https://ru.wikipedia.org/wiki/%D0%9F%D0%B5%D1%80%D0%B5%D1%81%D0%BB%D0%B0%D0%B2%D0%BB%D1%8C-%D0%97%D0%B0%D0%BB%D0%B5%D1%81%D1%81%D0%BA%D0%B8%D0%B9",
+            year: 1152
+        },
+        "pereslavl-south": {
+            title: "Переяславль Южный",
+            coords: [50.066111, 31.442222],
+            url: "https://ru.wikipedia.org/wiki/%D0%9F%D0%B5%D1%80%D0%B5%D1%8F%D1%81%D0%BB%D0%B0%D0%B2",
+            year: 993
+        },
+        "pereyaslavl-ryazansky": {
+            title: "Переяслаавль-Рязанский",
+            coords: [54.616667, 39.716667],
+            url: "https://ru.wikipedia.org/wiki/%D0%A0%D1%8F%D0%B7%D0%B0%D0%BD%D1%8C",
+            year: 1095
+        },
+        "peremyshl-san": {
+            title: "Перемышль на Сане",
+            coords: [49.783333, 22.766667],
+            url: "https://ru.wikipedia.org/wiki/%D0%9F%D1%88%D0%B5%D0%BC%D1%8B%D1%81%D0%BB%D1%8C",
+            year: 981
+        },
+        "peremyshl-kaluga": {
+            title: "Перемышль Калужский",
+            coords: [54.263611, 36.163056],
+            url: "https://ru.wikipedia.org/wiki/%D0%9F%D0%B5%D1%80%D0%B5%D0%BC%D1%8B%D1%88%D0%BB%D1%8C_(%D0%9A%D0%B0%D0%BB%D1%83%D0%B6%D1%81%D0%BA%D0%B0%D1%8F_%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C)",
+            year: 1328
+        },
+        "peremyshl-muscovy": {
+            title: "Перемышль Московский",
+            coords: [55.361111, 37.405556],
+            url: "https://ru.wikipedia.org/wiki/%D0%9F%D0%B5%D1%80%D0%B5%D0%BC%D1%8B%D1%88%D0%BB%D1%8C_%D0%9C%D0%BE%D1%81%D0%BA%D0%BE%D0%B2%D1%81%D0%BA%D0%B8%D0%B9",
             year: 1152
         }
     };
 
     const lines = [
-        { id1: "zvenigorod-galich", id2: "zvenigorod-moscow", color: "color-zvenigorod" }
+        { id1: "zvenigorod-galich", id2: "zvenigorod-moscow", color: "color-zvenigorod" },
+        { id1: "zvenigorod-galich", id2: "zvenigorod-kiev", color: "color-zvenigorod" },
+        { id1: "zvenigorod-moscow", id2: "zvenigorod-kiev", color: "color-zvenigorod" },
+
+        { id1: "pereslavl-zalessky", id2: "pereslavl-south", color: "color-pereslavl" },
+        { id1: "pereslavl-zalessky", id2: "pereyaslavl-ryazansky", color: "color-pereslavl" },
+        { id1: "pereslavl-south", id2: "pereyaslavl-ryazansky", color: "color-pereslavl" },
+
+        { id1: "peremyshl-san", id2: "peremyshl-kaluga", color: "color-peremyshl" },
+        { id1: "peremyshl-san", id2: "peremyshl-muscovy", color: "color-peremyshl" },
+        { id1: "peremyshl-kaluga", id2: "peremyshl-muscovy", color: "color-peremyshl" },
+
+        { id1: "yaroslavl-volga", id2: "yaroslavl-san", color: "color-yaroslavl" },
+
+        { id1: "vladimir-zalessky", id2: "vladimir-volynskyi", color: "color-vladimir" },
+
+        { id1: "galich-dniester", id2: "galich-kostroma", color: "color-galich" }
     ];
 
+
     const colors = {
-        "color-zvenigorod": "#e63946"
+        "color-zvenigorod": "#e63946", // ярко-красный
+        "color-pereslavl": "#0077b6",  // насыщенный синий
+        "color-peremyshl": "#2a9d8f",  // бирюзовый
+        "color-yaroslavl": "#06d6a0",  // ярко-зеленый
+        "color-vladimir": "#ffb703",   // солнечно-желтый
+        "color-galich": "#9d4edd",     // яркий фиолетовый
+        "color-extra1": "#f72585",     // розово-магентовый
+        "color-extra2": "#00b4d8",     // чистый голубой
+        "color-extra3": "#fb8500",     // чистый оранжево-янтарный
+        "color-extra4": "#3a86ff",     // насыщенный синий
+        "color-extra5": "#8338ec"      // пурпурно-синий
     };
 
     map.on('load', () => {
@@ -152,7 +257,7 @@
                 type: "Feature",
                 geometry: {
                     type: "LineString",
-                    coordinates: [t1.coords, t2.coords]
+                    coordinates: [t1.coords.slice().reverse(), t2.coords.slice().reverse()]
                 },
                 properties: { color: colors[line.color] }
             };
@@ -172,7 +277,7 @@
             source: 'lines',
             paint: {
                 'line-color': ['get', 'color'],
-                'line-width': 4
+                'line-width': 3
             }
         });
 
@@ -189,7 +294,7 @@
             `);
 
             const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
-                .setLngLat(town.coords)
+                .setLngLat(town.coords.slice().reverse())
                 .setPopup(popup) // <- привязали popup к маркеру
                 .addTo(map);
 
