@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>🏛 Medieval East Slavic Towns</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.14.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.14.0/mapbox-gl.js"></script>
+    <style>
+        body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+
+        .marker-label {
+            background: #1d3557;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+        }
+
+        .marker-label:hover {
+            background: #457b9d;
+            transform: scale(1.05);
+        }
+
+        .mapboxgl-popup {
+            max-width: 250px;
+        }
+        .mapboxgl-popup-content {
+            font-family: 'Inter', sans-serif;
+            padding: 10px 14px;
+        }
+        .mapboxgl-popup-content h3 {
+            margin: 0 0 5px;
+            font-size: 16px;
+            color: #1d3557;
+        }
+        .mapboxgl-popup-content a {
+            color: #e63946;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .mapboxgl-popup-content a:hover {
+            text-decoration: underline;
+        }
+        .mapboxgl-popup {
+            max-width: 250px;
+        }
+
+        .mapboxgl-popup-content {
+            font-family: 'Inter', sans-serif;
+            padding: 12px 16px;
+            background: rgba(30, 30, 30, 0.95); /* тёмный фон с лёгкой прозрачностью */
+            color: #f1faee; /* светлый текст */
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .mapboxgl-popup-content h3 {
+            margin: 0 0 6px;
+            font-size: 16px;
+            color: #f1faee; /* выделяем заголовок светлым цветом */
+        }
+
+        .mapboxgl-popup-content a {
+            color: #e63946;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .mapboxgl-popup-content a:hover {
+            text-decoration: underline;
+        }
+        .mapboxgl-popup-content {
+            font-family: 'Inter', sans-serif;
+            padding: 12px 16px;
+            background: rgba(30, 30, 30, 0.95); /* тёмный фон */
+            color: #f1faee; /* светлый текст */
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .mapboxgl-popup-content h3 {
+            margin: 0 0 6px;
+            font-size: 16px;
+            color: #f1faee;
+        }
+
+        .mapboxgl-popup-content a {
+            color: #f1faee; /* делаем ссылку нейтральной, не яркой */
+            text-decoration: underline;
+            word-break: break-all; /* чтобы длинный URL переносился */
+        }
+
+        .mapboxgl-popup-content a:hover {
+            text-decoration: none; /* мягкий hover */
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoiYW5kcmV3bGV2aW4iLCJhIjoiY2t5ZXM5c3cyMWJxYjJvcGJycmw0dGlyeSJ9.9QfCmimkyYicpprraBc-XQ';
+    const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/light-v11',
+        config: { basemap: { lightPreset: 'dusk' } },
+        center: [34.22, 53.15],
+        zoom: 4,
+        projection: {
+            name: 'lambertConformalConic',
+            center: [0, 30],
+            parallels: [30, 30]
+        }
+    });
+
+    const towns = {
+        "zvenigorod-galich": {
+            title: "Звенигород Львовский",
+            coords: [24.246944, 49.732778], // lng, lat
+            url: "https://ru.wikipedia.org/wiki/%D0%97%D0%B2%D0%B5%D0%BD%D0%B8%D0%B3%D0%BE%D1%80%D0%BE%D0%B4_(%D0%9B%D1%8C%D0%B2%D0%BE%D0%B2%D1%81%D0%BA%D0%B0%D1%8F_%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C)",
+            year: 1086
+        },
+        "zvenigorod-moscow": {
+            title: "Звенигород Московский",
+            coords: [36.85, 55.733333],
+            url: "https://ru.wikipedia.org/wiki/%D0%97%D0%B2%D0%B5%D0%BD%D0%B8%D0%B3%D0%BE%D1%80%D0%BE%D0%B4",
+            year: 1152
+        }
+    };
+
+    const lines = [
+        { id1: "zvenigorod-galich", id2: "zvenigorod-moscow", color: "color-zvenigorod" }
+    ];
+
+    const colors = {
+        "color-zvenigorod": "#e63946"
+    };
+
+    map.on('load', () => {
+        // Добавляем линию
+        const features = lines.map(line => {
+            const t1 = towns[line.id1];
+            const t2 = towns[line.id2];
+            return {
+                type: "Feature",
+                geometry: {
+                    type: "LineString",
+                    coordinates: [t1.coords, t2.coords]
+                },
+                properties: { color: colors[line.color] }
+            };
+        });
+
+        map.addSource('lines', {
+            type: 'geojson',
+            data: {
+                type: "FeatureCollection",
+                features: features
+            }
+        });
+
+        map.addLayer({
+            id: 'lines-layer',
+            type: 'line',
+            source: 'lines',
+            paint: {
+                'line-color': ['get', 'color'],
+                'line-width': 4
+            }
+        });
+
+        // Добавляем маркеры с подписями
+        Object.entries(towns).forEach(([id, town]) => {
+            const el = document.createElement('div');
+            el.className = 'marker-label';
+            el.textContent = town.title;
+
+            const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
+                <h3>${town.title}</h3>
+                <p><strong>Год основания:</strong> ${town.year}</p>
+                <p><a href="${town.url}" target="_blank">${decodeURIComponent(town.url)}</a></p>
+            `);
+
+            const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+                .setLngLat(town.coords)
+                .setPopup(popup) // <- привязали popup к маркеру
+                .addTo(map);
+
+            // Теперь клик автоматически открывает popup
+        });
+
+        function updateButtonSizes() {
+            const zoom = map.getZoom();
+            const scale = Math.max(0.6, Math.min(1.2, zoom / 6));
+            document.querySelectorAll('.marker-label').forEach(btn => {
+                btn.style.fontSize = `${11 * scale}px`;
+                btn.style.padding = `${3*scale}px ${8*scale}px`;
+            });
+        }
+
+        map.on('zoom', updateButtonSizes);
+        updateButtonSizes();
+    });
+</script>
+</body>
+</html>
