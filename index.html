@@ -11,8 +11,8 @@
         #map { position: absolute; top: 0; bottom: 0; width: 100%; }
 
         .marker-label {
-            background: #1d3557;
-            color: #fff;
+            background: rgba(30, 30, 30, 0.75);
+            color: #f1faee;
             padding: 4px 8px;
             border-radius: 6px;
             font-size: 13px;
@@ -24,7 +24,7 @@
         }
 
         .marker-label:hover {
-            background: #457b9d;
+            background: rgba(30, 30, 30, 0.95);
             transform: scale(1.05);
         }
 
@@ -101,6 +101,22 @@
         .mapboxgl-popup-content a:hover {
             text-decoration: none; /* мягкий hover */
         }
+        .mapboxgl-popup-content a {
+            color: #f1faee;           /* цвет текста ссылки, как у popup */
+            text-decoration: none;    /* убираем подчеркивание */
+            outline: none;            /* убираем синюю окантовку при фокусе */
+            transition: color 0.2s ease;
+        }
+
+        .mapboxgl-popup-content a:hover {
+            color: #ffb703;           /* например, подсветка при наведении */
+            text-decoration: underline; /* можно оставить подчеркивание при hover */
+        }
+
+        .mapboxgl-popup-content a:focus {
+            outline: none;            /* убираем рамку при фокусе через клавиатуру */
+        }
+
     </style>
 </head>
 <body>
@@ -287,9 +303,9 @@
             el.className = 'marker-label';
             el.textContent = town.title;
 
-            const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
-                <h3>${town.title}</h3>
-                <p><strong>Год основания:</strong> ${town.year}</p>
+            const popup = new mapboxgl.Popup({ offset: 50 }).setHTML(`
+                <h2>${town.title}</h2>
+                <h3>${town.year}</h3>
                 <p><a href="${town.url}" target="_blank">${decodeURIComponent(town.url)}</a></p>
             `);
 
