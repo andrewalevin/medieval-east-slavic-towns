@@ -6,6 +6,7 @@
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.14.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.14.0/mapbox-gl.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@7.2.0/turf.min.js"></script>
     <style>
         body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         #map { position: absolute; top: 0; bottom: 0; width: 100%; }
@@ -20,7 +21,7 @@
             cursor: pointer;
             white-space: nowrap;
             box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-            transition: all 0.2s ease;
+            transition: all 0.01s ease;
         }
 
         .marker-label:hover {
@@ -47,6 +48,10 @@
         }
         .mapboxgl-popup-content a:hover {
             text-decoration: underline;
+        }
+
+        .mapboxgl-popup-content h2, .mapboxgl-popup-content h3, ..mapboxgl-popup-content p {
+            text-align: center;
         }
         .mapboxgl-popup {
             max-width: 250px;
@@ -80,7 +85,7 @@
         .mapboxgl-popup-content {
             font-family: 'Inter', sans-serif;
             padding: 12px 16px;
-            background: rgba(30, 30, 30, 0.95); /* тёмный фон */
+            background: rgba(30, 30, 30, 0.8); /* тёмный фон */
             color: #f1faee; /* светлый текст */
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
@@ -127,8 +132,8 @@
         container: 'map',
         style: 'mapbox://styles/mapbox/light-v11',
         config: { basemap: { lightPreset: 'dusk' } },
-        center: [34.22, 53.15],
-        zoom: 4,
+        center: [52.674643, 32.292902].reverse(),
+        zoom: 4.7,
         projection: {
             name: 'lambertConformalConic',
             center: [50, 30],
@@ -138,90 +143,105 @@
 
     const towns = {
         "zvenigorod-galich": {
+            short: "Звенигород",
             title: "Звенигород Львовский",
             coords: [49.732778, 24.246944],
             url: "https://ru.wikipedia.org/wiki/%D0%97%D0%B2%D0%B5%D0%BD%D0%B8%D0%B3%D0%BE%D1%80%D0%BE%D0%B4_(%D0%9B%D1%8C%D0%B2%D0%BE%D0%B2%D1%81%D0%BA%D0%B0%D1%8F_%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C)",
             year: 1086
         },
         "zvenigorod-moscow": {
+            short: "Звенигород",
             title: "Звенигород Московский",
             coords: [55.733333, 36.85],
             url: "https://ru.wikipedia.org/wiki/%D0%97%D0%B2%D0%B5%D0%BD%D0%B8%D0%B3%D0%BE%D1%80%D0%BE%D0%B4",
             year: 1152
         },
         "zvenigorod-kiev": {
+            short: "Звенигород",
             title: "Звенигород Киевский",
             coords: [50.320833, 30.386111],
             url: "https://ru.wikipedia.org/wiki/%D0%97%D0%B2%D0%B5%D0%BD%D0%B8%D0%B3%D0%BE%D1%80%D0%BE%D0%B4_%D0%9A%D0%B8%D0%B5%D0%B2%D1%81%D0%BA%D0%B8%D0%B9",
             year: 1097
         },
         "galich-dniester": {
+            short: "Галич",
             title: "Галич на Днестре",
             coords: [49.112778, 24.721667],
             url: "https://ru.wikipedia.org/wiki/%D0%93%D0%B0%D0%BB%D0%B8%D1%87_(%D0%98%D0%B2%D0%B0%D0%BD%D0%BE-%D0%A4%D1%80%D0%B0%D0%BD%D0%BA%D0%BE%D0%B2%D1%81%D0%BA%D0%B0%D1%8F_%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C)",
             year: 1140
         },
         "galich-kostroma": {
+            short: "Галич",
             title: "Галич на Костроме",
             coords: [58.383333, 42.35],
             url: "https://ru.wikipedia.org/wiki/%D0%93%D0%B0%D0%BB%D0%B8%D1%87_(%D0%A0%D0%BE%D1%81%D1%81%D0%B8%D1%8F)",
             year: 1159
         },
         "vladimir-zalessky": {
+            short: "Владимир",
             title: "Владимир-Залесский",
             coords: [56.133333, 40.416667],
             url: "https://ru.wikipedia.org/wiki/%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%BC%D0%B8%D1%80_(%D0%B3%D0%BE%D1%80%D0%BE%D0%B4,_%D0%A0%D0%BE%D1%81%D1%81%D0%B8%D1%8F)",
             year: 990
         },
         "vladimir-volynskyi": {
+            short: "Владимир",
             title: "Владимир Волынский",
             coords: [50.848056, 24.322222],
             url: "https://ru.wikipedia.org/wiki/%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%BC%D0%B8%D1%80_(%D0%A3%D0%BA%D1%80%D0%B0%D0%B8%D0%BD%D0%B0)",
             year: 988
         },
         "yaroslavl-volga": {
+            short: "Ярославль",
             title: "Ярославль на Волге",
             coords: [57.616667, 39.85],
             url: "https://ru.wikipedia.org/wiki/%D0%AF%D1%80%D0%BE%D1%81%D0%BB%D0%B0%D0%B2%D0%BB%D1%8C",
             year: 1010
         },
         "yaroslavl-san": {
+            short: "Ярослав",
             title: "Ярослав на Сане",
             coords: [50.018611, 22.679722],
             url: "https://ru.wikipedia.org/wiki/%D0%AF%D1%80%D0%BE%D1%81%D0%BB%D0%B0%D0%B2_(%D0%B3%D0%BE%D1%80%D0%BE%D0%B4)",
             year: 1031
         },
         "pereslavl-zalessky": {
+            short: "Переславль",
             title: "Переславль-Залесский",
             coords: [56.738133, 38.856153],
             url: "https://ru.wikipedia.org/wiki/%D0%9F%D0%B5%D1%80%D0%B5%D1%81%D0%BB%D0%B0%D0%B2%D0%BB%D1%8C-%D0%97%D0%B0%D0%BB%D0%B5%D1%81%D1%81%D0%BA%D0%B8%D0%B9",
             year: 1152
         },
         "pereslavl-south": {
+            short: "Переяславль",
             title: "Переяславль Южный",
             coords: [50.066111, 31.442222],
             url: "https://ru.wikipedia.org/wiki/%D0%9F%D0%B5%D1%80%D0%B5%D1%8F%D1%81%D0%BB%D0%B0%D0%B2",
             year: 993
         },
         "pereyaslavl-ryazansky": {
+            short: "Переяслаавль",
             title: "Переяслаавль-Рязанский",
             coords: [54.616667, 39.716667],
             url: "https://ru.wikipedia.org/wiki/%D0%A0%D1%8F%D0%B7%D0%B0%D0%BD%D1%8C",
             year: 1095
         },
         "peremyshl-san": {
+            short: "Перемышль",
             title: "Перемышль на Сане",
             coords: [49.783333, 22.766667],
             url: "https://ru.wikipedia.org/wiki/%D0%9F%D1%88%D0%B5%D0%BC%D1%8B%D1%81%D0%BB%D1%8C",
             year: 981
         },
         "peremyshl-kaluga": {
+            short: "Перемышль",
             title: "Перемышль Калужский",
             coords: [54.263611, 36.163056],
             url: "https://ru.wikipedia.org/wiki/%D0%9F%D0%B5%D1%80%D0%B5%D0%BC%D1%8B%D1%88%D0%BB%D1%8C_(%D0%9A%D0%B0%D0%BB%D1%83%D0%B6%D1%81%D0%BA%D0%B0%D1%8F_%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C)",
             year: 1328
         },
         "peremyshl-muscovy": {
+            short: "Перемышль",
             title: "Перемышль Московский",
             coords: [55.361111, 37.405556],
             url: "https://ru.wikipedia.org/wiki/%D0%9F%D0%B5%D1%80%D0%B5%D0%BC%D1%8B%D1%88%D0%BB%D1%8C_%D0%9C%D0%BE%D1%81%D0%BA%D0%BE%D0%B2%D1%81%D0%BA%D0%B8%D0%B9",
@@ -229,106 +249,197 @@
         }
     };
 
-    const lines = [
-        { id1: "zvenigorod-galich", id2: "zvenigorod-moscow", color: "color-zvenigorod" },
-        { id1: "zvenigorod-galich", id2: "zvenigorod-kiev", color: "color-zvenigorod" },
-        { id1: "zvenigorod-moscow", id2: "zvenigorod-kiev", color: "color-zvenigorod" },
-
-        { id1: "pereslavl-zalessky", id2: "pereslavl-south", color: "color-pereslavl" },
-        { id1: "pereslavl-zalessky", id2: "pereyaslavl-ryazansky", color: "color-pereslavl" },
-        { id1: "pereslavl-south", id2: "pereyaslavl-ryazansky", color: "color-pereslavl" },
-
-        { id1: "peremyshl-san", id2: "peremyshl-kaluga", color: "color-peremyshl" },
-        { id1: "peremyshl-san", id2: "peremyshl-muscovy", color: "color-peremyshl" },
-        { id1: "peremyshl-kaluga", id2: "peremyshl-muscovy", color: "color-peremyshl" },
-
-        { id1: "yaroslavl-volga", id2: "yaroslavl-san", color: "color-yaroslavl" },
-
-        { id1: "vladimir-zalessky", id2: "vladimir-volynskyi", color: "color-vladimir" },
-
-        { id1: "galich-dniester", id2: "galich-kostroma", color: "color-galich" }
-    ];
-
-
     const colors = {
-        "color-zvenigorod": "#e63946", // ярко-красный
-        "color-pereslavl": "#0077b6",  // насыщенный синий
-        "color-peremyshl": "#2a9d8f",  // бирюзовый
-        "color-yaroslavl": "#06d6a0",  // ярко-зеленый
-        "color-vladimir": "#ffb703",   // солнечно-желтый
-        "color-galich": "#9d4edd",     // яркий фиолетовый
+        "color-zvenigorod": "#ea5545", // ярко-красный
+        "color-pereslavl": "#27aeef",  // насыщенный синий
+        "color-peremyshl": "#87bc45",  // бирюзовый
+        "color-yaroslavl": "#9d4edd",  // ярко-зеленый
+        "color-vladimir": "#edbf33",   // солнечно-желтый
+        "color-galich": "#00bfa0",     // яркий фиолетовый
         "color-extra1": "#f72585",     // розово-магентовый
         "color-extra2": "#00b4d8",     // чистый голубой
         "color-extra3": "#fb8500",     // чистый оранжево-янтарный
         "color-extra4": "#3a86ff",     // насыщенный синий
-        "color-extra5": "#8338ec"      // пурпурно-синий
+        "color-extra5": "#b33dc6"      // пурпурно-синий
     };
 
+ //
+
+    const lines = [
+        { id1: "zvenigorod-galich", id2: "zvenigorod-moscow", color: "color-zvenigorod", offset: 0.3, direction: -1},
+        { id1: "zvenigorod-galich", id2: "zvenigorod-kiev", color: "color-zvenigorod", offset: 0.2 },
+        { id1: "zvenigorod-moscow", id2: "zvenigorod-kiev", color: "color-zvenigorod", offset: 0.2},
+
+        { id1: "pereslavl-zalessky", id2: "pereslavl-south", color: "color-pereslavl", offset: 0.2, direction: -1},
+        { id1: "pereslavl-zalessky", id2: "pereyaslavl-ryazansky", color: "color-pereslavl", offset: 0.1, direction: -1 },
+        { id1: "pereslavl-south", id2: "pereyaslavl-ryazansky", color: "color-pereslavl", offset: 0.2},
+
+        { id1: "peremyshl-san", id2: "peremyshl-kaluga", color: "color-peremyshl", offset: 0.1 },
+        { id1: "peremyshl-san", id2: "peremyshl-muscovy", color: "color-peremyshl", offset: 0.5, direction: -1 },
+        { id1: "peremyshl-kaluga", id2: "peremyshl-muscovy", color: "color-peremyshl", offset: 0.3, direction: -1 },
+
+        { id1: "yaroslavl-volga", id2: "yaroslavl-san", color: "color-yaroslavl", offset: 0.6},
+
+        { id1: "vladimir-zalessky", id2: "vladimir-volynskyi", color: "color-vladimir",  offset: .5},
+
+        { id1: "galich-dniester", id2: "galich-kostroma", color: "color-galich", offset: .6 }
+    ];
+
+
+    function createCurvedLine(start, end, offset, direction, sharpness) {
+        offset = offset ?? 0; // 0 = прямая
+        sharpness = sharpness ?? 1.0;     // 0.1–0.9, плавность изгиба
+        direction = direction ?? 1;       // 1 = вправо от линии, -1 = влево
+
+        if (offset === 0) {
+            return turf.lineString([start, end]);
+        }
+
+        // Средняя точка
+        const mid = [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2];
+
+        // Азимут основной линии
+        const bearing = turf.bearing(turf.point(start), turf.point(end));
+
+        // Расстояние между точками
+        const distance = turf.distance(turf.point(start), turf.point(end));
+
+        // Смещение перпендикулярно линии (в километрах)
+        const offsetObj = (distance / 2) * offset;
+
+        // Перпендикулярный азимут (90° или -90°)
+        const perpBearing = bearing + (90 * direction);
+
+        // Контрольная точка
+        const control = turf.destination(turf.point(mid), offsetObj, perpBearing, { units: 'kilometers' });
+
+        // Линия через контрольную точку
+        const line = turf.lineString([start, control.geometry.coordinates, end]);
+
+        // Сглаживаем Bezier
+        return turf.bezierSpline(line, { sharpness });
+    }
+
+
     map.on('load', () => {
-        // Добавляем линию
         const features = lines.map(line => {
-            const t1 = towns[line.id1];
-            const t2 = towns[line.id2];
+            const curvedLine = createCurvedLine(
+                towns[line.id1].coords.slice().reverse(),
+                towns[line.id2].coords.slice().reverse(),
+                line.offset, line.direction
+            );
             return {
                 type: "Feature",
-                geometry: {
-                    type: "LineString",
-                    coordinates: [t1.coords.slice().reverse(), t2.coords.slice().reverse()]
-                },
+                geometry: curvedLine.geometry,
                 properties: { color: colors[line.color] }
             };
         });
 
-        map.addSource('lines', {
-            type: 'geojson',
-            data: {
-                type: "FeatureCollection",
-                features: features
-            }
+        // Линии
+        map.addLayer({
+            id: 'curved-lines',
+            type: 'line',
+            source: {type: 'geojson', data: {type: "FeatureCollection", features: features}},
+            layout: { 'line-join': 'round', 'line-cap': 'round'},
+            paint: {'line-color': ['get', 'color'], 'line-width': 3.25}
+        });
+
+        // Кружки на концах линий
+        const endpoints = [];
+        lines.forEach(line => {
+            const start = towns[line.id1].coords.slice().reverse();
+            const end = towns[line.id2].coords.slice().reverse();
+            endpoints.push({
+                type: "Feature",
+                geometry: { type: "Point", coordinates: start },
+                properties: { color: colors[line.color] }
+            });
+            endpoints.push({
+                type: "Feature",
+                geometry: { type: "Point", coordinates: end },
+                properties: { color: colors[line.color] }
+            });
         });
 
         map.addLayer({
-            id: 'lines-layer',
-            type: 'line',
-            source: 'lines',
+            id: 'line-endpoints',
+            type: 'circle',
+            source: {
+                type: 'geojson',
+                data: { type: "FeatureCollection", features: endpoints }
+            },
             paint: {
-                'line-color': ['get', 'color'],
-                'line-width': 3
+                'circle-radius': 6,
+                'circle-color': ['get', 'color'],
+                'circle-stroke-width': 2,
+                'circle-stroke-color': '#fff'
             }
         });
 
-        // Добавляем маркеры с подписями
-        Object.entries(towns).forEach(([id, town]) => {
-            const el = document.createElement('div');
-            el.className = 'marker-label';
-            el.textContent = town.title;
+        // Городские подписи
+        const townFeatures = Object.values(towns).map(t => ({
+            type: "Feature",
+            geometry: { type: "Point", coordinates: t.coords.slice().reverse() },
+            properties: {
+                id: t.title,
+                name: t.short,
+                year: t.year,
+                url: t.url
+            }
+        }));
 
-            const popup = new mapboxgl.Popup({ offset: 50 }).setHTML(`
-                <h2>${town.title}</h2>
-                <h3>${town.year}</h3>
-                <p><a href="${town.url}" target="_blank">${decodeURIComponent(town.url)}</a></p>
-            `);
-
-            const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
-                .setLngLat(town.coords.slice().reverse())
-                .setPopup(popup) // <- привязали popup к маркеру
-                .addTo(map);
-
-            // Теперь клик автоматически открывает popup
+        map.addSource('towns', {
+            type: 'geojson',
+            data: { type: "FeatureCollection", features: townFeatures }
         });
 
-        function updateButtonSizes() {
-            const zoom = map.getZoom();
-            const scale = Math.max(0.6, Math.min(1.2, zoom / 6));
-            document.querySelectorAll('.marker-label').forEach(btn => {
-                btn.style.fontSize = `${11 * scale}px`;
-                btn.style.padding = `${3*scale}px ${8*scale}px`;
-            });
-        }
+        map.addLayer({
+            id: 'town-labels',
+            type: 'symbol',
+            source: 'towns',
+            layout: {
+                'text-field': ['get', 'name'],
+                'text-font': ['Open Sans Bold'],
+                'text-size': 14,
+                'text-offset': [.5, .5],     // смещаем в сторону от кружка
+                'text-anchor': 'left',
+                'text-allow-overlap': false,
+                'text-variable-anchor': ['top','bottom','left','right']
+            },
+            paint: {
+                'text-halo-color': '#fff',
+                'text-halo-width': 1.2,
+                'text-color': '#222'
+            }
+        });
 
-        map.on('zoom', updateButtonSizes);
-        updateButtonSizes();
+        // Popup при клике на название города
+        map.on('click', 'town-labels', (e) => {
+            const f = e.features[0];
+            const coords = f.geometry.coordinates.slice();
+            const props = f.properties;
+
+            new mapboxgl.Popup()
+                .setLngLat(coords)
+                .setHTML(`
+        <h2>${props.id}</h2>
+        <h3 style="text-align:center;">${props.year} г.</h3>
+        <p><a href="${props.url}" target="_blank">${decodeURIComponent(props.url)}</a></p>
+      `)
+                .addTo(map);
+        });
+
+        // Меняем курсор при наведении на подписи
+        map.on('mouseenter', 'town-labels', () => {
+            map.getCanvas().style.cursor = 'pointer';
+        });
+        map.on('mouseleave', 'town-labels', () => {
+            map.getCanvas().style.cursor = '';
+        });
     });
+
+
+
 </script>
 </body>
 </html>
