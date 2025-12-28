@@ -1,6 +1,7 @@
 # medieval-east-slavic-towns
 🏛 Medieval East Slavic Towns
 
+v2
 
 ## 🔬 Studies
 
