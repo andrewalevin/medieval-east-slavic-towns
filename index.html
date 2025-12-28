@@ -282,6 +282,17 @@
             img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Starodub.jpg/960px-Starodub.jpg?uselang=ru",
             year: 1152
         },
+        "starodub-votsky": {
+            short: "Сатордуб",
+            title: "Стародуб Воцкий",
+            coords: [55.793917, 42.7185],
+            url: "https://ru.wikipedia.org/wiki/%D0%A1%D1%82%D0%B0%D1%80%D0%BE%D0%B4%D1%83%D0%B1_%D0%92%D0%BE%D1%86%D0%BA%D0%B8%D0%B9",
+            img: "",
+            year: нет даты
+        }
+
+
+        
     };
 
     const colors = {
@@ -291,7 +302,7 @@
         "color-yaroslavl": "#9d4edd",  // ярко-зеленый
         "color-vladimir": "#edbf33",   // солнечно-желтый
         "color-galich": "#00bfa0",     // яркий фиолетовый
-        "color-extra1": "#f72585",     // розово-магентовый
+        "color-starodub": "#f72585",     // розово-магентовый
         "color-extra2": "#00b4d8",     // чистый голубой
         "color-extra3": "#fb8500",     // чистый оранжево-янтарный
         "color-extra4": "#3a86ff",     // насыщенный синий
@@ -319,7 +330,9 @@
 
         { id1: "galich-dniester", id2: "galich-kostroma", color: "color-galich", offset: .6 },
         
-        { id1: "starodub-seversky", id2: "starodub-klyazma", color: "color-extra1", offset: .6 }
+        { id1: "starodub-seversky", id2: "starodub-klyazma", color: "color-extra1", offset: .6 },
+        { id1: "starodub-seversky", id2: "starodub-votsky", color: "color-extra1", offset: .6 },
+        { id1: "starodub-klyazma", id2: "starodub-votsky", color: "color-extra1", offset: .6 }
     ];
 
 
