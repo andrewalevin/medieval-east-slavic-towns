@@ -391,7 +391,7 @@
             type: 'line',
             source: {type: 'geojson', data: {type: "FeatureCollection", features: features}},
             layout: { 'line-join': 'round', 'line-cap': 'round'},
-            paint: {'line-color': ['get', 'color'], 'line-width': 3.25}
+            paint: {'line-color': ['get', 'color'], 'line-width': 3}
         });
 
         // Кружки на концах линий
@@ -419,7 +419,7 @@
                 data: { type: "FeatureCollection", features: endpoints }
             },
             paint: {
-                'circle-radius': 6,
+                'circle-radius': 4,
                 'circle-color': ['get', 'color'],
                 'circle-stroke-width': 2,
                 'circle-stroke-color': '#fff'
