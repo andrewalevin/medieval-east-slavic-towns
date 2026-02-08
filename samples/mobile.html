@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Change the map labels language based on visitor's location</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <script type="text/javascript" nonce="c1393a7b50f7476a96cd11dc2c8" src="//local.adguard.org?ts=1770573465020&amp;type=content-script&amp;dmn=docs.maptiler.com&amp;url=https%3A%2F%2Fdocs.maptiler.com%2Fsdk-js%2Fexamples%2Fip-map-language%2Fcode1%2F&amp;app=com.google.Chrome&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1&amp;stealth=1&amp;st-push&amp;st-loc&amp;st-java&amp;st-dnt"></script><script type="text/javascript" nonce="c1393a7b50f7476a96cd11dc2c8" src="//local.adguard.org?ts=1770573465020&amp;name=AdGuard%20Assistant&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script><script src="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.umd.min.js"></script>
+  <link href="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.css" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+  maptilersdk.config.apiKey = 'WjHCNaauQhBsrOu2xEeZ';
+  const map = new maptilersdk.Map({
+    container: 'map', // container's id or the HTML element to render the map
+    style: maptilersdk.MapStyle.STREETS,
+    center: [20, 50], // starting position [lng, lat]
+    zoom: 4, // starting zoom
+  });
+  map.on('load', async () => {
+    const geolocationIP = await maptilersdk.geolocation.info();
+    const {country_languages} = geolocationIP;
+    map.setLanguage(`name:${country_languages[0]}`);
+  });
+</script>
+</body>
+</html>
