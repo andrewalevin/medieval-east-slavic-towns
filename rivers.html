@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>Яркая подсветка рек — Москва</title>
+
+    <!-- Mapbox GL JS -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.17.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.17.0/mapbox-gl.css" rel="stylesheet" />
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoiYW5kcmV3bGV2aW4iLCJhIjoiY2t5ZXM5c3cyMWJxYjJvcGJycmw0dGlyeSJ9.9QfCmimkyYicpprraBc-XQ';
+
+    const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/dark-v11', // тёмный фон — реки смотрятся ярче
+        center: [37.6173, 55.7558], // Москва
+        zoom: 10
+    });
+
+    map.on('load', () => {
+
+        // Добавляем слой рек поверх базового стиля
+        map.addLayer({
+            id: 'highlighted-rivers',
+            type: 'line',
+            source: 'composite',
+            'source-layer': 'waterway',
+            layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            paint: {
+                'line-color': '#00f5ff',
+
+                'line-width': [
+                    'interpolate',
+                    ['linear'],
+                    ['zoom'],
+                    8, [
+                        'match',
+                        ['get', 'class'],
+                        'river', 2.5,
+                        'canal', 2,
+                        'stream', 1,
+                        0.5
+                    ],
+                    14, [
+                        'match',
+                        ['get', 'class'],
+                        'river', 8,
+                        'canal', 6,
+                        'stream', 2,
+                        1
+                    ]
+                ],
+
+                'line-opacity': 0.9
+            }
+        });
+
+        // Дополнительно — "ореол" под рекой (эффект свечения)
+        map.addLayer({
+            id: 'river-glow',
+            type: 'line',
+            source: 'composite',
+            'source-layer': 'waterway',
+            layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            paint: {
+                'line-color': '#00f5ff',
+                'line-width': [
+                    'interpolate',
+                    ['linear'],
+                    ['zoom'],
+                    8, 4,
+                    12, 10,
+                    15, 20
+                ],
+                'line-opacity': 0.25
+            }
+        }, 'highlighted-rivers');
+    });
+</script>
+
+</body>
+</html>

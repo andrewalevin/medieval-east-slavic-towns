@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>Исторические русские города</title>
+
+    <!-- MapTiler SDK -->
+    <script src="https://cdn.maptiler.com/maptiler-sdk-js/v2.0.3/maptiler-sdk.umd.js"></script>
+    <link href="https://cdn.maptiler.com/maptiler-sdk-js/v2.0.3/maptiler-sdk.css" rel="stylesheet"/>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont,
+            "Segoe UI", Roboto, Ubuntu, sans-serif;
+        }
+
+        #map {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .popup {
+            max-width: 380px;
+            font-size: 14px;
+            line-height: 1.45;
+        }
+
+        .popup h3 {
+            margin: 0 0 6px;
+            font-size: 18px;
+        }
+
+        .popup img {
+            width: 100%;
+            border-radius: 6px;
+            margin: 8px 0;
+        }
+
+        .section {
+            margin-top: 10px;
+        }
+
+        .section-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .chronicle {
+            color: #aaa;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        .maptiler-popup-content {
+            padding: 12px 16px;
+            background: rgba(30, 30, 30, 0.85);
+            color: #f1faee;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script>
+    // 🔑 API key MapTiler
+    maptilersdk.config.apiKey = "WjHCNaauQhBsrOu2xEeZ";
+
+    // 🌐 JSON
+    const DATA_URL = "towns-without-dates.json";
+
+    const colorsTownsKingdoms = {
+        "болгарский": "SeaGreen",
+        "валашский": "DeepPink",
+        "волынский": "LimeGreen",
+        "залесский": "green",
+        "киевский": "blue",
+        "литовский": "red",
+        "подольский": "DarkTurquoise",
+        "рязанский": "Orange",
+        "смоленский": "Fuchsia",
+        "тверской": "DodgerBlue"
+    };
+
+    function getColorKingdom(key) {
+        return colorsTownsKingdoms[key] || "black";
+    }
+
+    // ----------------------------
+    // Инициализация карты
+    // ----------------------------
+    const map = new maptilersdk.Map({
+        container: "map",
+        style: 'https://api.maptiler.com/maps/019c3e3d-ed13-7688-be51-46dd15fd7e24/style.json?key=FhcDkqNMFIcyWPy2YFCD',
+        center: [30, 55],
+        zoom: 4
+    });
+
+    map.addControl(new maptilersdk.NavigationControl(), "top-right");
+
+    function getThumbnailURL(originalURL, width) {
+        if (!originalURL.includes("upload.wikimedia.org")) return originalURL;
+        const parts = originalURL.split("/");
+        const fileName = parts.at(-1);
+        const thumbParts = [...parts];
+        thumbParts.splice(parts.length - 3, 0, "thumb");
+        return `${thumbParts.join("/")}/${width}px-${fileName}`;
+    }
+
+    // ----------------------------
+    // Загрузка данных
+    // ----------------------------
+    fetch(DATA_URL)
+        .then(r => r.json())
+        .then(data => {
+            const features = [];
+
+            data.forEach(entry => {
+                entry.modern_cities.forEach(city => {
+                    if (!city.coords?.lat) return;
+
+                    features.push({
+                        type: "Feature",
+                        geometry: {
+                            type: "Point",
+                            coordinates: [city.coords.lon, city.coords.lat]
+                        },
+                        properties: {
+                            name: city.name,
+                            image: city.image_640,
+                            wiki: city.wiki_url,
+                            foundation: city.foundation,
+                            origin_type: entry.origin_type,
+                            historical_names: entry.historical_names,
+                            color: getColorKingdom(entry.origin_type)
+                        }
+                    });
+                });
+            });
+
+            const geojson = {
+                type: "FeatureCollection",
+                features
+            };
+
+            map.on("load", () => {
+
+                map.addSource("cities", {
+                    type: "geojson",
+                    data: geojson
+                });
+
+                // 🔴 Точки
+                map.addLayer({
+                    id: "city-points",
+                    type: "circle",
+                    source: "cities",
+                    paint: {
+                        "circle-radius": 6,
+                        "circle-color": ["get", "color"],
+                        "circle-stroke-width": 1.5,
+                        "circle-stroke-color": "#ffffff"
+                    }
+                });
+
+                // 🏷 Подписи
+                map.addLayer({
+                    id: "city-labels",
+                    type: "symbol",
+                    source: "cities",
+                    layout: {
+                        "text-field": ["get", "name"],
+                        "text-offset": [0, 1.2],
+                        "text-anchor": "top",
+                        "text-size": 12
+                    },
+                    paint: {
+                        "text-color": "#333"
+                    }
+                });
+
+                const layers = ["city-points", "city-labels"];
+
+                ["city-points", "city-labels"].forEach(layer => {
+                    map.on("click", layer, (e) => {
+                        const feature = e.features[0];
+                        if (!feature) return;
+                        // popup-код
+
+                        const f = e.features[0];
+                        const p = f.properties;
+                        const coords = f.geometry.coordinates.slice();
+
+                        const historical = typeof p.historical_names === "string"
+                            ? JSON.parse(p.historical_names)
+                            : p.historical_names;
+
+                        let html = `<div class="popup"><h3>${p.name}</h3>`;
+
+                        if (p.image) {
+                            html += `<img src="${getThumbnailURL(p.image, 500)}">`;
+                        }
+
+                        if (p.foundation) {
+                            html += `
+                            <div class="section">
+                                <div class="section-title">Основание</div>
+                                <div>${p.foundation.text}</div>
+                            </div>`;
+                        }
+
+                        html += `
+                        <div class="section">
+                            <div class="section-title">Происхождение</div>
+                            <div>${p.origin_type}</div>
+                        </div>
+
+                        <div class="section">
+                            <div class="section-title">Названия в летописях</div>`;
+
+                        historical.forEach(h => {
+                            html += `
+                            <div>
+                                ${h.name}
+                                ${h.chronicle ? `<div class="chronicle">${h.chronicle}</div>` : ""}
+                            </div>`;
+                        });
+
+                        html += `</div>`;
+
+                        if (p.wiki) {
+                            html += `
+                            <div class="section">
+                                <a href="${p.wiki}" target="_blank">Статья в Википедии →</a>
+                            </div>`;
+                        }
+
+                        html += `</div>`;
+
+                        new maptilersdk.Popup({ maxWidth: "400px" })
+                            .setLngLat(coords)
+                            .setHTML(html)
+                            .addTo(map);
+                    });
+
+                    map.on("mouseenter", layer, () => {
+                        map.getCanvas().style.cursor = "pointer";
+                    });
+
+                    map.on("mouseleave", layer, () => {
+                        map.getCanvas().style.cursor = "";
+                    });
+                });
+
+
+                map.on("mouseenter", layers, () => {
+                    map.getCanvas().style.cursor = "pointer";
+                });
+                map.on("mouseleave", layers, () => {
+                    map.getCanvas().style.cursor = "";
+                });
+            });
+        })
+        .catch(err => console.error("Ошибка загрузки JSON:", err));
+</script>
+
+</body>
+</html>
