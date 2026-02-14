@@ -3,6 +3,8 @@
 
 v2
 
+[https://andrewalevin.github.io/medieval-east-slavic-towns](https://andrewalevin.github.io/medieval-east-slavic-towns)
+
 ## 🔬 Studies
 
 **Звенигород Львовский**
