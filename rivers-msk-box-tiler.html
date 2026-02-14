@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Custom Style + Rivers</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.umd.min.js"></script>
+    <link href="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.css" rel="stylesheet" />
+
+
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { width: 100vw; height: 100vh; }
+        .popup-content {
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+
+    </style>
+</head>
+<body>
+<div id="map"></div>
+
+<script>
+    const map = new maptilersdk.Map({
+        container: 'map',
+        style: "https://api.maptiler.com/maps/019c3fc4-0a70-79bb-9ec1-6faf28c45534/style.json?key=FhcDkqNMFIcyWPy2YFCD",
+        center: [37.6173, 55.7558],
+        zoom: 6
+    });
+
+    map.addControl(new maptilersdk.NavigationControl());
+
+    map.on('load', () => {
+        map.addSource("my-tiles", {
+            type: "vector",
+            url: "https://api.maptiler.com/tiles/019c5d3f-16a8-7cd5-a8a0-9b3534f4fc52/tiles.json?key=FhcDkqNMFIcyWPy2YFCD"
+        });
+
+        map.addLayer({
+                "id": "rivers-line-5",
+                "type": "line",
+                "source": "my-tiles",
+                "layout": {},
+                "paint": {
+                    "line-color": "hsl(0, 100%, 50%)",
+                    "line-width": 3
+                },
+                "filter": [
+                    "all",
+                    [
+                        "==",
+                        [
+                            "geometry-type"
+                        ],
+                        "LineString"
+                    ],
+                    [
+                        "any",
+                        [
+                            "!",
+                            [
+                                "has",
+                                "river_class"
+                            ]
+                        ],
+                        [
+                            "all",
+                            [
+                                ">=",
+                                [
+                                    "get",
+                                    "river_class"
+                                ],
+                                5
+                            ],
+                            [
+                                "<=",
+                                [
+                                    "get",
+                                    "river_class"
+                                ],
+                                5
+                            ]
+                        ]
+                    ]
+                ],
+                "source-layer": "rivers"
+        });
+        map.addLayer({
+            "id": "rivers-line-4",
+            "type": "line",
+            "source": "my-tiles",
+            "layout": {},
+            "paint": {
+                "line-color": "hsl(296, 100%, 50%)",
+                "line-width": 2
+            },
+            "filter": [
+                "all",
+                [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ],
+                [
+                    "all",
+                    [
+                        "has",
+                        "river_class"
+                    ],
+                    [
+                        "all",
+                        [
+                            ">=",
+                            [
+                                "get",
+                                "river_class"
+                            ],
+                            4
+                        ],
+                        [
+                            "<=",
+                            [
+                                "get",
+                                "river_class"
+                            ],
+                            4
+                        ]
+                    ]
+                ]
+            ],
+            "source-layer": "rivers"
+        });
+        map.addLayer({
+            "id": "rivers-line-3",
+            "type": "line",
+            "source": "my-tiles",
+            "layout": {},
+            "paint": {
+                "line-color": "hsl(231, 100%, 50%)",
+                "line-width": [
+                    "interpolate",
+                    [
+                        "linear"
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    0,
+                    1,
+                    22,
+                    2
+                ]
+            },
+            "filter": [
+                "all",
+                [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ],
+                [
+                    "any",
+                    [
+                        "!",
+                        [
+                            "has",
+                            "river_class"
+                        ]
+                    ],
+                    [
+                        "all",
+                        [
+                            ">=",
+                            [
+                                "get",
+                                "river_class"
+                            ],
+                            3
+                        ],
+                        [
+                            "<=",
+                            [
+                                "get",
+                                "river_class"
+                            ],
+                            3
+                        ]
+                    ]
+                ]
+            ],
+            "source-layer": "rivers"
+        });
+        map.addLayer({
+            "id": "rivers-line-2",
+            "type": "line",
+            "source": "my-tiles",
+            "layout": {},
+            "paint": {
+                "line-color": "hsl(189, 100%, 50%)",
+                "line-width": 1
+            },
+            "filter": [
+                "all",
+                [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ],
+                [
+                    "any",
+                    [
+                        "!",
+                        [
+                            "has",
+                            "river_class"
+                        ]
+                    ],
+                    [
+                        "all",
+                        [
+                            ">=",
+                            [
+                                "get",
+                                "river_class"
+                            ],
+                            2
+                        ],
+                        [
+                            "<=",
+                            [
+                                "get",
+                                "river_class"
+                            ],
+                            2
+                        ]
+                    ]
+                ]
+            ],
+            "source-layer": "rivers"
+        });
+        map.addLayer({
+            "id": "rivers-line-1",
+            "type": "line",
+            "source": "my-tiles",
+            "layout": {},
+            "paint": {
+                "line-color": "hsl(0, 0%, 0%)",
+                "line-width": [
+                    "interpolate",
+                    [
+                        "linear"
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    6,
+                    0.5,
+                    22,
+                    3
+                ]
+            },
+            "filter": [
+                "all",
+                [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ],
+                [
+                    "any",
+                    [
+                        "!",
+                        [
+                            "has",
+                            "river_class"
+                        ]
+                    ],
+                    [
+                        "all",
+                        [
+                            ">=",
+                            [
+                                "get",
+                                "river_class"
+                            ],
+                            1
+                        ],
+                        [
+                            "<=",
+                            [
+                                "get",
+                                "river_class"
+                            ],
+                            1
+                        ]
+                    ]
+                ]
+            ],
+            "source-layer": "rivers"
+        });
+
+
+        map.addLayer({
+            "id": "rivers-symbol-5",
+            "type": "symbol",
+            "source": "my-tiles",
+            "layout": {
+                "text-field": [
+                    "coalesce",
+                    [
+                        "get",
+                        "name:ru"
+                    ],
+                    [
+                        "get",
+                        "name"
+                    ]
+                ],
+                "text-font": [
+                    "Noto Sans Regular"
+                ],
+                "visibility": "visible",
+                "text-size": 18
+            },
+            "paint": {
+                "text-color": "hsl(0, 100%, 50%)",
+                "icon-halo-color": "rgba(255, 255, 255, 1)",
+                "text-halo-color": "hsla(0, 0%, 100%, 0.61)",
+                "icon-halo-width": 1,
+                "text-halo-width": 100
+            },
+            "filter": [
+                "all",
+                [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ],
+                [
+                    "any",
+                    [
+                        "!",
+                        [
+                            "has",
+                            "river_class"
+                        ]
+                    ],
+                    [
+                        "all",
+                        [
+                            ">=",
+                            [
+                                "get",
+                                "river_class"
+                            ],
+                            5
+                        ],
+                        [
+                            "<=",
+                            [
+                                "get",
+                                "river_class"
+                            ],
+                            5
+                        ]
+                    ]
+                ]
+            ],
+            "source-layer": "rivers"
+        });
+        map.addLayer({
+            "id": "rivers-symbol-4",
+            "type": "symbol",
+            "source": "my-tiles",
+            "layout": {
+                "text-field": [
+                    "coalesce",
+                    [
+                        "get",
+                        "name:ru"
+                    ],
+                    [
+                        "get",
+                        "name"
+                    ]
+                ],
+                "text-font": [
+                    "Noto Sans Regular"
+                ],
+                "visibility": "visible",
+                "text-size": 14
+            },
+            "paint": {
+                "text-color": "hsl(287, 100%, 50%)",
+                "icon-halo-color": "rgba(255, 255, 255, 1)",
+                "text-halo-color": "hsla(0, 0%, 100%, 0.61)",
+                "icon-halo-width": 1,
+                "text-halo-width": 100
+            },
+            "filter": [
+                "all",
+                [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ],
+                [
+                    "any",
+                    [
+                        "!",
+                        [
+                            "has",
+                            "river_class"
+                        ]
+                    ],
+                    [
+                        "all",
+                        [
+                            ">=",
+                            [
+                                "get",
+                                "river_class"
+                            ],
+                            4
+                        ],
+                        [
+                            "<=",
+                            [
+                                "get",
+                                "river_class"
+                            ],
+                            4
+                        ]
+                    ]
+                ]
+            ],
+            "source-layer": "rivers"
+        });
+        map.addLayer({
+            "id": "rivers-symbol-3",
+            "type": "symbol",
+            "source": "my-tiles",
+            "layout": {
+                "text-field": [
+                    "coalesce",
+                    [
+                        "get",
+                        "name:ru"
+                    ],
+                    [
+                        "get",
+                        "name"
+                    ]
+                ],
+                "text-font": [
+                    "Noto Sans Regular"
+                ],
+                "visibility": "visible",
+                "text-size": 10,
+                "icon-keep-upright": true,
+                "text-padding": 8,
+                "text-justify": "center"
+            },
+            "paint": {
+                "text-color": "hsl(253, 100%, 37%)",
+                "icon-halo-color": "rgba(255, 255, 255, 1)",
+                "text-halo-color": "hsla(0, 0%, 100%, 0.61)",
+                "icon-halo-width": 1,
+                "text-halo-width": 100
+            },
+            "filter": [
+                "all",
+                [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ],
+                [
+                    "any",
+                    [
+                        "!",
+                        [
+                            "has",
+                            "river_class"
+                        ]
+                    ],
+                    [
+                        "all",
+                        [
+                            ">=",
+                            [
+                                "get",
+                                "river_class"
+                            ],
+                            3
+                        ],
+                        [
+                            "<=",
+                            [
+                                "get",
+                                "river_class"
+                            ],
+                            3
+                        ]
+                    ]
+                ]
+            ],
+            "source-layer": "rivers",
+            "minzoom": 6
+        });
+        map.addLayer({
+            "id": "rivers-symbol-2",
+            "type": "symbol",
+            "source": "my-tiles",
+            "layout": {
+                "text-field": [
+                    "coalesce",
+                    [
+                        "get",
+                        "name:ru"
+                    ],
+                    [
+                        "get",
+                        "name"
+                    ]
+                ],
+                "text-font": [
+                    "Noto Sans Italic"
+                ],
+                "visibility": "visible",
+                "text-size": 12,
+                "icon-keep-upright": true,
+                "text-padding": 4,
+                "text-overlap": "never"
+            },
+            "paint": {
+                "text-color": "hsl(210, 100%, 51%)"
+            },
+            "filter": [
+                "all",
+                [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ],
+                [
+                    "any",
+                    [
+                        "!",
+                        [
+                            "has",
+                            "river_class"
+                        ]
+                    ],
+                    [
+                        "all",
+                        [
+                            ">=",
+                            [
+                                "get",
+                                "river_class"
+                            ],
+                            2
+                        ],
+                        [
+                            "<=",
+                            [
+                                "get",
+                                "river_class"
+                            ],
+                            2
+                        ]
+                    ]
+                ]
+            ],
+            "source-layer": "rivers",
+            "minzoom": 8
+        });
+        map.addLayer({
+            "id": "rivers-symbol-1",
+            "type": "symbol",
+            "source": "my-tiles",
+            "layout": {
+                "text-field": [
+                    "coalesce",
+                    [
+                        "get",
+                        "name:ru"
+                    ],
+                    [
+                        "get",
+                        "name"
+                    ]
+                ],
+                "text-font": [
+                    "Noto Sans Regular"
+                ],
+                "visibility": "visible",
+                "text-size": 10,
+                "icon-keep-upright": true,
+                "text-padding": 11,
+                "text-overlap": "never"
+            },
+            "paint": {
+                "text-color": "hsl(0, 0%, 0%)"
+            },
+            "filter": [
+                "all",
+                [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ],
+                [
+                    "any",
+                    [
+                        "!",
+                        [
+                            "has",
+                            "river_class"
+                        ]
+                    ],
+                    [
+                        "all",
+                        [
+                            ">=",
+                            [
+                                "get",
+                                "river_class"
+                            ],
+                            2
+                        ],
+                        [
+                            "<=",
+                            [
+                                "get",
+                                "river_class"
+                            ],
+                            2
+                        ]
+                    ]
+                ]
+            ],
+            "source-layer": "rivers",
+            "minzoom": 9
+        });
+
+
+
+        const clickableLayers = [
+            "rivers-line-5",
+            "rivers-line-4",
+            "rivers-line-3",
+            "rivers-line-2",
+            "rivers-line-1",
+            "rivers-symbol-5",
+            "rivers-symbol-4",
+            "rivers-symbol-3",
+            "rivers-symbol-2",
+            "rivers-symbol-1"
+        ];
+
+
+        map.on("click", (e) => {
+
+            const features = map.queryRenderedFeatures(e.point, {
+                layers: clickableLayers
+            });
+
+            if (!features.length) return;
+
+            const feature = features[0];
+            const props = feature.properties;
+
+            const name = props["name:ru"] || props["name"] || props["name:en"] || "NAME";
+
+            let html = ""
+
+            html += "<div style='max-height:300px;overflow:auto;font-size:12px'>";
+
+            html += `<table style="border-collapse:collapse;width:100%;font-size:13px;line-height:1.4">`;
+
+            for (const key in props) {
+                if (key === "telemetry")
+                    continue
+
+                const value = props[key];
+
+                if (value !== null && value !== "") {
+                    html += `
+                    <tr>
+                      <td style="padding:4px;font-weight:bold;border-bottom:1px solid #eee;width:40%">${key}</td>
+                      <td style="padding:4px;border-bottom:1px solid #eee">${value}</td>
+                    </tr>
+                    `;
+                }
+            }
+            html += `</table>`;
+
+            html += "<ul style=\"list-style-type: none;padding: 0;\">";
+            props["telemetry"].split("%%").forEach(item => {
+                const [key, val] = item.split("==");
+                html += `<li>${key} : ${val}</li>`;
+            });
+            html += "</ul>";
+
+
+
+            html += "</div>";
+
+            new maptilersdk.Popup()
+                .setLngLat(e.lngLat)
+                .setHTML(html)
+                .addTo(map);
+        });
+
+
+        clickableLayers.forEach(layer => {
+            map.on("mouseenter", layer, () => {
+                map.getCanvas().style.cursor = "pointer";
+            });
+
+            map.on("mouseleave", layer, () => {
+                map.getCanvas().style.cursor = "";
+            });
+        });
+
+    });
+</script>
+
+</body>
+</html>
