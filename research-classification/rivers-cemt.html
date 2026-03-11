@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>CEMT Rivers Map</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no"/>
+
+    <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet"/>
+    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+
+    <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+    </style>
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<script>
+
+    const map = new maplibregl.Map({
+        container: 'map',
+        style: 'https://api.maptiler.com/maps/019cc0a1-ec33-70c4-9e08-2667d95462a6/style.json?key=PE20FyKz0o7ecOlmKKZe',
+        center: [37.6, 55.75],
+        zoom: 6
+    });
+
+    map.on('load', () => {
+
+        map.addSource('rivers', {
+            type: 'geojson',
+            data: 'rivers-int-cemt-MSK.geojson'
+        });
+
+        map.addLayer({
+            id: 'rivers-cemt',
+            type: 'line',
+            source: 'rivers',
+            paint: {
+                'line-width': 1,
+                'line-color': [
+                    'case',
+
+                    ['==', ['get','CEMT'], 3], '#2ecc71',
+                    ['==', ['get','CEMT'], 6.1], '#e74c3c',
+                    ['==', ['get','CEMT'], 6.3], '#9b59b6',
+
+                    '#95a5a6'
+                ]
+            }
+        });
+
+    });
+
+</script>
+
+</body>
+</html>
