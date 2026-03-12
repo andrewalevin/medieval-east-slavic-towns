@@ -1,0 +1,108 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MapTiler Custom Zoom + Layer Control with Emoji</title>
+  <script src="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.umd.min.js"></script>
+  <link href="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.css" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+
+
+    .maplibregl-ctrl * {
+      font-size: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+<div id="map"></div>
+<script>
+  maptilersdk.config.apiKey = "FhcDkqNMFIcyWPy2YFCD";
+
+  const map = new maptilersdk.Map({
+    container: 'map',
+    style: 'https://api.maptiler.com/maps/019ce292-7da2-7d4c-a8de-16b116a32c88/style.json?key=FhcDkqNMFIcyWPy2YFCD',
+    navigationControl: false,
+    terrainControl: false,
+    scaleControl: false,
+    geolocateControl: false
+  });
+
+  // Функция для кнопки переключения слоев с emoji
+  function createLayerToggleButton(map, layers, emojiOn = "🌿", emojiOff = "🍂") {
+    let visible = true;
+    const btn = document.createElement("button");
+    btn.innerText = emojiOn;
+    btn.type = "button";
+
+    btn.onclick = () => {
+      visible = !visible;
+      layers.forEach(id => {
+        map.setLayoutProperty(id, "visibility", visible ? "visible" : "none");
+      });
+      btn.innerText = visible ? emojiOn : emojiOff;
+    };
+
+    return btn;
+  }
+
+  // Кастомный контрол
+  class ZoomControl {
+    onAdd(map) {
+      this._map = map;
+      this._container = document.createElement('div');
+      this._container.className = 'maplibregl-ctrl maplibregl-ctrl-group';
+
+      // Отображение текущего зума
+      this._zoomDisplay = document.createElement('button');
+      this._zoomDisplay.type = 'button';
+      this._zoomDisplay.innerText = map.getZoom().toFixed(2);
+      this._zoomDisplay.style.textAlign = 'center';
+      this._container.appendChild(this._zoomDisplay);
+
+      const updateZoom = () => {
+        this._zoomDisplay.innerText = map.getZoom().toFixed(1);
+      };
+      map.on('zoomend', updateZoom);
+
+      // Кнопка природных слоев
+      const natureBtn = createLayerToggleButton(map, [
+        "Vegetation", "Scrub", "Wood", "Forest", "Grass",
+        "Sand", "Glacier", "River", "Waterway", "Lake"
+      ], "🏜", "💧");
+      this._container.appendChild(natureBtn);
+
+      // Кнопка меток
+      const labelsBtn = createLayerToggleButton(map, [
+        "Continent labels", "Capital city labels", "City labels",
+        "Town labels", "Village labels", "Place labels"
+      ], "🌆", "🏰");
+      this._container.appendChild(labelsBtn);
+
+      return this._container;
+    }
+
+    onRemove() {
+      this._container.parentNode.removeChild(this._container);
+      this._map = undefined;
+    }
+  }
+
+  map.addControl(new ZoomControl(), 'top-right');
+</script>
+</body>
+
+</html>
