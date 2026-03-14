@@ -7,63 +7,30 @@
     <title>Map with Separate Layer Toggles</title>
     <script src="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.umd.min.js"></script>
     <link href="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.css" rel="stylesheet" />
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.js"></script>
-
     <style>
         body { margin: 0; padding: 0; }
         #map { position: absolute; top: 0; bottom: 0; width: 100%; }
         .maplibregl-ctrl * { font-size: 1rem; }
-        #year-slider-container{
-            position:absolute;
-            bottom:20px;
-            left:50%;
-            transform:translateX(-50%);
-            background:white;
-            padding:12px 16px;
-            border-radius:10px;
-            width:320px;
-            font-family:sans-serif;
+
+        #year-slider-container {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: sans-serif;
         }
 
-        #year-slider{
-            margin:10px 0;
+        #year-slider {
+            width: 500px;
+
         }
-        /* сам трек */
-        .noUi-target {
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        #year-value{
+            text-align: center;
         }
 
-        /* заполненная часть между ползунками */
-        .noUi-connect {
-            background: #007aff; /* синий Apple‑style */
-        }
-
-        /* ручки */
-        .noUi-handle {
-            border: 3px solid #007aff;
-            background: #fff;
-            border-radius: 50%;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            width: 20px;
-            height: 20px;
-            top: -6px;
-        }
-
-        /* при focus */
-        .noUi-handle:focus {
-            box-shadow: 0 0 0 4px rgba(0,122,255,0.3);
-        }
-        .noUi-handle {
-            transition: box-shadow 0.2s, border-color 0.2s;
-        }
-
-        .noUi-handle:hover {
-            border-color: #0051c8;
-        }
     </style>
 </head>
 <body>
@@ -131,33 +98,19 @@
 
             // Отдельные кнопки для рек, озер и городов
             const riversBtn = createLayerToggleButton(map, [
-                "rivers6", "rivers5", "rivers6-titles", "rivers5-titles"
+                "rivers6", "rivers5", "rivers4", "rivers3", "rivers2", "rivers1"
             ], "🌊", "⛔");
             this._container.appendChild(riversBtn);
+
+            const riversTitleBtn = createLayerToggleButton(map, [
+                "rivers6-titles", "rivers5-titles", "rivers4-titles", "rivers3-titles", "rivers2-titles", "rivers1-titles"
+            ], "🔹", "⛔");
+            this._container.appendChild(riversTitleBtn);
 
             const lakesBtn = createLayerToggleButton(map, ["lakes-titles"], "🏞️", "⛔");
             this._container.appendChild(lakesBtn);
 
             const townsBtn = createLayerToggleButton(map, ["towns-titles"], "🏘️", "⛔");
-
-            townsBtn.onclick = () => {
-
-                const layer = map.getLayoutProperty("towns-titles","visibility");
-
-                const visible = layer !== "visible";
-
-                map.setLayoutProperty(
-                    "towns-titles",
-                    "visibility",
-                    visible ? "visible" : "none"
-                );
-
-                townsBtn.innerText = visible ? "🏘️" : "⛔";
-
-                document.getElementById("year-slider-container").style.display =
-                    visible ? "block" : "none";
-            };
-
             this._container.appendChild(townsBtn);
 
             return this._container;
@@ -178,75 +131,704 @@
             url: "https://api.maptiler.com/tiles/019ce964-b542-752b-aca9-2e45fbb480c1/tiles.json?key=FhcDkqNMFIcyWPy2YFCD"
         });
 
-        map.setFilter("towns-titles", [
-            "<=",
-            ["to-number", ["get", "date"]],
-            1501
-        ]);
+        const riverColor = getComputedStyle(document.documentElement)
+            .getPropertyValue('--river-color-1')
+            .trim();
 
         const layersToAdd = [
-            { id: "rivers6", type: "line", "source-layer": "rivers6", paint: { "line-color": "hsl(114,100%,32%)", "line-width": 5 } },
-            { id: "rivers5", type: "line", "source-layer": "rivers5", paint: { "line-color": "hsl(0,100%,50%)", "line-width": 3 } },
-            { id: "rivers6-titles", type: "symbol", "source-layer": "rivers6",
-                layout: { "text-field": ["coalesce", ["get","name:ru"], ["get","name"]], "text-font":["Noto Sans Regular"], "text-size":18 },
-                paint: { "text-color":"hsl(120,100%,50%)", "text-halo-color":"hsla(0,0%,100%,0.61)", "text-halo-width":1 } },
-            { id: "rivers5-titles", type: "symbol", "source-layer": "rivers5",
-                layout: { "text-field": ["coalesce", ["get","name:ru"], ["get","name"]], "text-font":["Noto Sans Regular"], "text-size":18 },
-                paint: { "text-color":"hsl(0,100%,50%)", "text-halo-color":"hsla(0,0%,100%,0.61)", "text-halo-width":1 } },
-            { id: "lakes-titles", type: "symbol", "source-layer": "lakes",
-                layout: { "text-field": ["coalesce", ["get","name:ru"], ["get","name"]], "text-font":["Noto Sans Regular"], "text-size":18 },
-                paint: { "text-color":"hsl(237,100%,50%)", "text-halo-color":"hsla(0,0%,100%,0.61)", "text-halo-width":1 } },
-            { id: "towns-titles", type: "symbol", "source-layer": "towns",
-                layout: {
+            {
+                id: "rivers6", type: "line", "source-layer": "rivers6",
+                "layout": {
+                    "line-join": "round",
+                    "line-cap": "round",
+                    "line-round-limit": 1
+                },
+                "paint": {
+                    "line-color": "hsla(252, 100%, 41%, 0.8)",
+                    "line-width": [
+                        "interpolate",
+                        [
+                            "cubic-bezier",
+                            0.5,
+                            0,
+                            0.5,
+                            1
+                        ],
+                        [
+                            "zoom"
+                        ],
+                        3,
+                        1,
+                        11,
+                        4
+                    ],
+                    "line-gap-width": 0
+                },
+                "filter": [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ]
+
+            },
+            {
+                id: "rivers5", type: "line", "source-layer": "rivers5",
+                "layout": {
+                    "line-join": "round",
+                    "line-cap": "butt"
+                },
+                "paint": {
+                    "line-color": "hsl(222, 100%, 61%)",
+                    "line-width": [
+                        "interpolate",
+                        [
+                            "cubic-bezier",
+                            0.5,
+                            0,
+                            0.5,
+                            1
+                        ],
+                        [
+                            "zoom"
+                        ],
+                        3,
+                        0,
+                        9,
+                        3
+                    ]
+                },
+                "filter": [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ]
+            },
+            {
+                id: "rivers4", type: "line", "source-layer": "rivers4",
+                "layout": {
+                    "line-join": "round"
+                },
+                "paint": {
+                    "line-color": "hsl(264, 100%, 50%)",
+                    "line-width": [
+                        "interpolate",
+                        [
+                            "cubic-bezier",
+                            0.5,
+                            0,
+                            0.5,
+                            1
+                        ],
+                        [
+                            "zoom"
+                        ],
+                        4,
+                        0,
+                        10,
+                        2.5
+                    ]
+                },
+                "filter": [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ]
+            },
+            {
+                id: "rivers3", type: "line", "source-layer": "rivers3",
+                "layout": {},
+                "paint": {
+                    "line-color": "hsl(197, 100%, 46%)",
+                    "line-width": [
+                        "interpolate",
+                        [
+                            "cubic-bezier",
+                            0.5,
+                            0,
+                            0.5,
+                            1
+                        ],
+                        [
+                            "zoom"
+                        ],
+                        5,
+                        0.25,
+                        9,
+                        2
+                    ]
+                },
+                "filter": [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ]
+            },
+            {
+                id: "rivers2", type: "line", "source-layer": "rivers2",
+                "layout": {
+                    "line-join": "round"
+                },
+                "paint": {
+                    "line-color": "hsl(277, 100%, 47%)",
+                    "line-width": [
+                        "interpolate",
+                        [
+                            "cubic-bezier",
+                            0.5,
+                            0,
+                            0.5,
+                            1
+                        ],
+                        [
+                            "zoom"
+                        ],
+                        6,
+                        0.25,
+                        10,
+                        1.5
+                    ]
+                },
+                "filter": [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ]
+            },
+            {
+                id: "rivers1", type: "line", "source-layer": "rivers1",
+                "minzoom": 8,
+                "layout": {
+                    "visibility": "visible",
+                    "line-join": "round"
+                },
+                "paint": {
+                    "line-width": [
+                        "interpolate",
+                        [
+                            "cubic-bezier",
+                            0.5,
+                            0,
+                            0.5,
+                            1
+                        ],
+                        [
+                            "zoom"
+                        ],
+                        8,
+                        0.25,
+                        9,
+                        1
+                    ],
+                    "line-color": "hsl(0, 0%, 0%)"
+                },
+                "filter": [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ]
+            },
+
+            {
+                id: "rivers6-titles", type: "symbol", "source-layer": "rivers6",
+                "minzoom": 4,
+                "layout": {
+                    "text-field": [
+                        "coalesce",
+                        [
+                            "get",
+                            "name:ru"
+                        ],
+                        [
+                            "get",
+                            "name"
+                        ]
+                    ],
+                    "text-font": [
+                        "Noto Sans Bold"
+                    ],
+                    "text-size": [
+                        "interpolate",
+                        [
+                            "cubic-bezier",
+                            0.5,
+                            0,
+                            0.5,
+                            1
+                        ],
+                        [
+                            "zoom"
+                        ],
+                        4,
+                        14,
+                        8,
+                        18
+                    ]
+                },
+                "paint": {
+                    "text-color": "hsl(252, 100%, 37%)",
+                    "icon-halo-color": "hsl(0, 0%, 100%)",
+                    "text-halo-color": "hsla(0, 0%, 100%, 0.7)",
+                    "icon-halo-width": 1,
+                    "text-halo-width": 2,
+                    "text-halo-blur": 3
+                },
+                "filter": [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ]
+            },
+            {
+                id: "rivers5-titles", type: "symbol", "source-layer": "rivers5",
+                "minzoom": 4,
+                "layout": {
+                    "text-field": [
+                        "coalesce",
+                        [
+                            "get",
+                            "name:ru"
+                        ],
+                        [
+                            "get",
+                            "name"
+                        ]
+                    ],
+                    "text-font": [
+                        "Noto Sans Semi Bold"
+                    ],
+                    "text-size": [
+                        "interpolate",
+                        [
+                            "cubic-bezier",
+                            0.5,
+                            0,
+                            0.5,
+                            1
+                        ],
+                        [
+                            "zoom"
+                        ],
+                        5,
+                        12,
+                        7,
+                        18
+                    ]
+                },
+                "paint": {
+                    "text-color": "hsl(222, 100%, 43%)",
+                    "icon-halo-color": "hsl(0, 0%, 100%)",
+                    "text-halo-color": "hsla(0, 0%, 100%, 0.8)",
+                    "icon-halo-width": 1,
+                    "text-halo-width": 2,
+                    "text-halo-blur": 0
+                },
+                "filter": [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ]
+            },
+            {
+                id: "rivers4-titles", type: "symbol", "source-layer": "rivers4",
+                "minzoom": 6,
+                "layout": {
+                    "text-field": [
+                        "coalesce",
+                        [
+                            "get",
+                            "name:ru"
+                        ],
+                        [
+                            "get",
+                            "name"
+                        ]
+                    ],
+                    "text-font": [
+                        "Noto Sans Regular"
+                    ],
+                    "text-size": [
+                        "interpolate",
+                        [
+                            "cubic-bezier",
+                            0.5,
+                            0,
+                            0.5,
+                            1
+                        ],
+                        [
+                            "zoom"
+                        ],
+                        6,
+                        10,
+                        8,
+                        16
+                    ],
+                    "icon-keep-upright": true,
+                    "text-anchor": "center",
+                    "text-overlap": "never",
+                    "text-padding": 0,
+                    "symbol-placement": "point",
+                    "symbol-avoid-edges": true,
+                    "symbol-z-order": "auto",
+                    "text-ignore-placement": false,
+                    "text-pitch-alignment": "auto",
+                    "text-rotation-alignment": "auto"
+                },
+                "paint": {
+                    "text-color": "hsl(264, 100%, 31%)",
+                    "icon-halo-color": "hsl(0, 0%, 100%)",
+                    "text-halo-color": "hsla(0, 0%, 100%, 0.8)",
+                    "icon-halo-width": 1,
+                    "text-halo-width": 2
+                },
+                "filter": [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ]
+            },
+            {
+                id: "rivers3-titles", type: "symbol", "source-layer": "rivers3",
+                "minzoom": 7,
+                "layout": {
+                    "text-field": [
+                        "coalesce",
+                        [
+                            "get",
+                            "name:ru"
+                        ],
+                        [
+                            "get",
+                            "name"
+                        ]
+                    ],
+                    "text-font": [
+                        "Noto Sans Medium Italic"
+                    ],
+                    "text-size": [
+                        "interpolate",
+                        [
+                            "cubic-bezier",
+                            0.5,
+                            0,
+                            0.5,
+                            1
+                        ],
+                        [
+                            "zoom"
+                        ],
+                        8,
+                        10,
+                        9,
+                        16
+                    ],
+                    "visibility": "visible"
+                },
+                "paint": {
+                    "text-color": "hsl(188, 100%, 27%)",
+                    "icon-halo-color": "hsl(0, 0%, 100%)",
+                    "text-halo-color": "hsla(0, 0%, 100%, 0.8)",
+                    "icon-halo-width": 1,
+                    "text-halo-width": 2
+                },
+                "filter": [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ]
+            },
+            {
+                id: "rivers2-titles", type: "symbol", "source-layer": "rivers2",
+                "minzoom": 8,
+                "layout": {
+                    "text-field": [
+                        "coalesce",
+                        [
+                            "get",
+                            "name:ru"
+                        ],
+                        [
+                            "get",
+                            "name"
+                        ]
+                    ],
+                    "text-font": [
+                        "Noto Sans Regular"
+                    ],
+                    "text-size": [
+                        "interpolate",
+                        [
+                            "cubic-bezier",
+                            0.5,
+                            0,
+                            0.5,
+                            1
+                        ],
+                        [
+                            "zoom"
+                        ],
+                        8,
+                        10,
+                        10,
+                        16
+                    ]
+                },
+                "paint": {
+                    "text-color": "hsl(281, 100%, 36%)",
+                    "icon-halo-color": "hsl(0, 0%, 100%)",
+                    "text-halo-color": "hsla(0, 0%, 100%, 0.8)",
+                    "icon-halo-width": 1,
+                    "text-halo-width": 1
+                },
+                "filter": [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ]
+            },
+            {
+                id: "rivers1-titles", type: "symbol", "source-layer": "rivers1",
+                "minzoom": 8,
+                "layout": {
+                    "text-field": [
+                        "coalesce",
+                        [
+                            "get",
+                            "name:ru"
+                        ],
+                        [
+                            "get",
+                            "name"
+                        ]
+                    ],
+                    "text-font": [
+                        "Noto Sans Regular"
+                    ],
+                    "text-size": [
+                        "interpolate",
+                        [
+                            "cubic-bezier",
+                            0.5,
+                            0,
+                            0.5,
+                            1
+                        ],
+                        [
+                            "zoom"
+                        ],
+                        6,
+                        0,
+                        12,
+                        16
+                    ]
+                },
+                "paint": {
+                    "icon-halo-color": "hsl(0, 0%, 100%)",
+                    "text-halo-color": "hsl(0, 0%, 100%)",
+                    "icon-halo-width": 1,
+                    "text-halo-width": 1,
+                    "text-color": "hsl(0, 0%, 0%)"
+                },
+                "filter": [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ]
+            },
+            {
+                id: "lakes-titles", type: "symbol", "source-layer": "lakes",
+                "minzoom": 8,
+                "layout": {
+                    "text-field": [
+                        "coalesce",
+                        [
+                            "get",
+                            "name:ru"
+                        ],
+                        [
+                            "get",
+                            "name"
+                        ]
+                    ],
+                    "text-font": [
+                        "Noto Sans Regular"
+                    ],
+                    "icon-image": "circle-dot",
+                    "icon-anchor": "bottom",
+                    "text-anchor": "top",
+                    "icon-size": 0.75,
+                    "text-size": [
+                        "interpolate",
+                        [
+                            "cubic-bezier",
+                            0.5,
+                            0,
+                            0.5,
+                            1
+                        ],
+                        [
+                            "zoom"
+                        ],
+                        8,
+                        10,
+                        10,
+                        16
+                    ]
+                },
+                "paint": {
+                    "icon-halo-color": "hsl(0, 0%, 100%)",
+                    "icon-halo-width": 0,
+                    "text-color": "hsl(215, 100%, 38%)",
+                    "icon-color": "hsl(215, 100%, 38%)",
+                    "text-halo-color": "hsl(0, 0%, 100%)",
+                    "text-halo-width": 1
+                },
+                "filter": [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "Point"
+                ]
+            },
+            {
+                id: "towns-titles", type: "symbol", "source-layer": "towns",
+                "layout": {
                     "text-field": [
                         "format",
-                        ["coalesce", ["get","name:ru"], ["get","name"]], { "font-scale": 1.0 },
-                        "\n", {},
-                        ["get","date"], { "font-scale": 0.8 }
+                        [
+                            "coalesce",
+                            [
+                                "get",
+                                "name:ru"
+                            ],
+                            [
+                                "get",
+                                "name"
+                            ]
+                        ],
+                        {
+                            "font-scale": 1
+                        },
+                        "\n",
+                        {},
+                        [
+                            "get",
+                            "date"
+                        ],
+                        {
+                            "font-scale": 0.9
+                        }
                     ],
-                    "text-font":["Noto Sans Regular"],
-                    "text-size":14
+                    "text-font": [
+                        "Noto Sans Semi Bold Italic"
+                    ],
+                    "icon-image": "dot",
+                    "icon-anchor": "bottom",
+                    "text-anchor": "top",
+                    "icon-size": [
+                        "interpolate",
+                        [
+                            "cubic-bezier",
+                            0.5,
+                            0,
+                            0.5,
+                            1
+                        ],
+                        [
+                            "zoom"
+                        ],
+                        5,
+                        0.75,
+                        11,
+                        2.5
+                    ],
+                    "text-size": [
+                        "interpolate",
+                        [
+                            "cubic-bezier",
+                            0.5,
+                            0,
+                            0.5,
+                            1
+                        ],
+                        [
+                            "zoom"
+                        ],
+                        4,
+                        10,
+                        11,
+                        16
+                    ],
+                    "icon-overlap": "never",
+                    "text-padding": 1,
+                    "visibility": "visible"
                 },
-                paint: { "text-color":"hsl(15,100%,33%)", "text-halo-color":"hsla(0,0%,100%,0.61)", "text-halo-width":1 } }
+                "paint": {
+                    "icon-halo-color": "hsl(0, 0%, 100%)",
+                    "icon-halo-width": 1,
+                    "text-color": "hsl(3, 100%, 37%)",
+                    "icon-color": "hsl(3, 100%, 37%)",
+                    "text-halo-color": "hsl(0, 0%, 100%)",
+                    "text-halo-width": 1,
+                    "icon-halo-blur": 0
+                },
+                "filter": [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "Point"
+                ]
+            }
         ];
 
         layersToAdd.forEach(l => map.addLayer({ ...l, source: "rivers-lakes-towns" }));
 
-        const slider = document.getElementById('year-slider');
-        const label = document.getElementById('year-label');
+        const slider = document.getElementById("year-slider");
+        const yearValue = document.getElementById("year-value");
 
-        noUiSlider.create(slider, {
-            start: [450,1501],
-            connect: true,
-            step: 1,
-            range: {
-                'min': 450,
-                'max': 1501
-            }
-        });
+        slider.addEventListener("input", () => {
 
-        slider.noUiSlider.on('update', function(values){
+            const year = parseInt(slider.value);
+            yearValue.innerText = year;
 
-            const min = Math.round(values[0]);
-            const max = Math.round(values[1]);
-
-            label.innerText = min + " – " + max;
-
-            map.setFilter("towns-titles",[
-                "all",
-                [">=",["to-number",["get","date"]],min],
-                ["<=",["to-number",["get","date"]],max]
+            map.setFilter("towns-titles", [
+                "<=",
+                ["to-number", ["get", "date"]],
+                year
             ]);
 
         });
-
     });
 </script>
-<div id="year-slider-container" style="display:none;">
-    <div id="year-slider"></div>
-    <div id="year-label">450 – 1501</div>
+<div id="year-slider-container">
+    <input type="range" id="year-slider" min="450" max="1501" value="1501" step="1">
+    <div id="year-value">1501</div>
 </div>
-
-
 </body>
 </html>
