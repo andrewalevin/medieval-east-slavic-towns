@@ -18,10 +18,32 @@
             font-size: 12px;
         }
 
+        #controls{
+            position:absolute;
+            top:10px;
+            left:10px;
+            background:white;
+            padding:10px;
+            border-radius:6px;
+            font-family:sans-serif;
+        }
+
+        #sliderContainer{
+            margin-top:6px;
+        }
+
     </style>
 </head>
 <body>
 <div id="map"></div>
+<div id="controls">
+    <button id="toggleDate">Toggle date</button>
+    <button id="toggleSlider">Toggle slider</button>
+    <div id="sliderContainer">
+        <input id="yearSlider" type="range" min="450" max="1501" value="1501">
+        <span id="yearValue">1501</span>
+    </div>
+</div>
 
 <script>
     const map = new maptilersdk.Map({
@@ -31,6 +53,8 @@
         zoom: 6
     });
 
+    let showDate = false;
+    let sliderVisible = true;
     map.on('load', () => {
         map.addSource("rivers-lakes-towns", {
             type: "vector",
@@ -163,14 +187,25 @@
             "source": "rivers-lakes-towns",
             "layout": {
                 "text-field": [
-                    "coalesce",
+                    "case",
+                    ["boolean", ["literal", showDate], false],
                     [
-                        "get",
-                        "name:ru"
+                        "format",
+                        [
+                            "coalesce",
+                            ["get","name:ru"],
+                            ["get","name"]
+                        ],
+                        {},
+                        "\n",
+                        {},
+                        ["get","date"],
+                        {"font-scale":0.8}
                     ],
                     [
-                        "get",
-                        "name"
+                        "coalesce",
+                        ["get","name:ru"],
+                        ["get","name"]
                     ]
                 ],
                 "text-font": [
@@ -180,7 +215,16 @@
                 "text-size": 18
             },
             "paint": {
-                "text-color": "hsl(15,100%,33%)",
+                "text-color":[
+                    "interpolate",
+                    ["linear"],
+                    ["get","date"],
+                    450,"#2c7bb6",
+                    800,"#abd9e9",
+                    1100,"#ffffbf",
+                    1300,"#fdae61",
+                    1501,"#d7191c"
+                ],
                 "icon-halo-color": "rgba(255, 255, 255, 1)",
                 "text-halo-color": "hsla(0, 0%, 100%, 0.61)",
                 "icon-halo-width": 1,
@@ -188,6 +232,8 @@
             },
             "source-layer": "towns"
         });
+
+
 
     });
 </script>

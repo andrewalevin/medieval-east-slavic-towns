@@ -7,10 +7,63 @@
     <title>Map with Separate Layer Toggles</title>
     <script src="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.umd.min.js"></script>
     <link href="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.js"></script>
+
     <style>
         body { margin: 0; padding: 0; }
         #map { position: absolute; top: 0; bottom: 0; width: 100%; }
         .maplibregl-ctrl * { font-size: 1rem; }
+        #year-slider-container{
+            position:absolute;
+            bottom:20px;
+            left:50%;
+            transform:translateX(-50%);
+            background:white;
+            padding:12px 16px;
+            border-radius:10px;
+            width:320px;
+            font-family:sans-serif;
+        }
+
+        #year-slider{
+            margin:10px 0;
+        }
+        /* сам трек */
+        .noUi-target {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        /* заполненная часть между ползунками */
+        .noUi-connect {
+            background: #007aff; /* синий Apple‑style */
+        }
+
+        /* ручки */
+        .noUi-handle {
+            border: 3px solid #007aff;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            width: 20px;
+            height: 20px;
+            top: -6px;
+        }
+
+        /* при focus */
+        .noUi-handle:focus {
+            box-shadow: 0 0 0 4px rgba(0,122,255,0.3);
+        }
+        .noUi-handle {
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+
+        .noUi-handle:hover {
+            border-color: #0051c8;
+        }
     </style>
 </head>
 <body>
@@ -86,6 +139,25 @@
             this._container.appendChild(lakesBtn);
 
             const townsBtn = createLayerToggleButton(map, ["towns-titles"], "🏘️", "⛔");
+
+            townsBtn.onclick = () => {
+
+                const layer = map.getLayoutProperty("towns-titles","visibility");
+
+                const visible = layer !== "visible";
+
+                map.setLayoutProperty(
+                    "towns-titles",
+                    "visibility",
+                    visible ? "visible" : "none"
+                );
+
+                townsBtn.innerText = visible ? "🏘️" : "⛔";
+
+                document.getElementById("year-slider-container").style.display =
+                    visible ? "block" : "none";
+            };
+
             this._container.appendChild(townsBtn);
 
             return this._container;
@@ -103,8 +175,14 @@
     map.on('load', () => {
         map.addSource("rivers-lakes-towns", {
             type: "vector",
-            url: "https://api.maptiler.com/tiles/019cde3f-4af8-7815-968c-1f00aff82036/tiles.json?key=FhcDkqNMFIcyWPy2YFCD"
+            url: "https://api.maptiler.com/tiles/019ce964-b542-752b-aca9-2e45fbb480c1/tiles.json?key=FhcDkqNMFIcyWPy2YFCD"
         });
+
+        map.setFilter("towns-titles", [
+            "<=",
+            ["to-number", ["get", "date"]],
+            1501
+        ]);
 
         const layersToAdd = [
             { id: "rivers6", type: "line", "source-layer": "rivers6", paint: { "line-color": "hsl(114,100%,32%)", "line-width": 5 } },
@@ -119,12 +197,56 @@
                 layout: { "text-field": ["coalesce", ["get","name:ru"], ["get","name"]], "text-font":["Noto Sans Regular"], "text-size":18 },
                 paint: { "text-color":"hsl(237,100%,50%)", "text-halo-color":"hsla(0,0%,100%,0.61)", "text-halo-width":1 } },
             { id: "towns-titles", type: "symbol", "source-layer": "towns",
-                layout: { "text-field": ["coalesce", ["get","name:ru"], ["get","name"]], "text-font":["Noto Sans Regular"], "text-size":18 },
+                layout: {
+                    "text-field": [
+                        "format",
+                        ["coalesce", ["get","name:ru"], ["get","name"]], { "font-scale": 1.0 },
+                        "\n", {},
+                        ["get","date"], { "font-scale": 0.8 }
+                    ],
+                    "text-font":["Noto Sans Regular"],
+                    "text-size":14
+                },
                 paint: { "text-color":"hsl(15,100%,33%)", "text-halo-color":"hsla(0,0%,100%,0.61)", "text-halo-width":1 } }
         ];
 
         layersToAdd.forEach(l => map.addLayer({ ...l, source: "rivers-lakes-towns" }));
+
+        const slider = document.getElementById('year-slider');
+        const label = document.getElementById('year-label');
+
+        noUiSlider.create(slider, {
+            start: [450,1501],
+            connect: true,
+            step: 1,
+            range: {
+                'min': 450,
+                'max': 1501
+            }
+        });
+
+        slider.noUiSlider.on('update', function(values){
+
+            const min = Math.round(values[0]);
+            const max = Math.round(values[1]);
+
+            label.innerText = min + " – " + max;
+
+            map.setFilter("towns-titles",[
+                "all",
+                [">=",["to-number",["get","date"]],min],
+                ["<=",["to-number",["get","date"]],max]
+            ]);
+
+        });
+
     });
 </script>
+<div id="year-slider-container" style="display:none;">
+    <div id="year-slider"></div>
+    <div id="year-label">450 – 1501</div>
+</div>
+
+
 </body>
 </html>
