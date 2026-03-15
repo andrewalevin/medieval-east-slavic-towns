@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map with Separate Layer Toggles</title>
+    <script src="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.umd.min.js"></script>
+    <link href="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.css" rel="stylesheet" />
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+        .maplibregl-ctrl * { font-size: 1rem; }
+
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+    maptilersdk.config.apiKey = "FhcDkqNMFIcyWPy2YFCD";
+
+    const map = new maptilersdk.Map({
+        container: 'map',
+        style: 'https://api.maptiler.com/maps/019cdf37-7e26-7bfc-83ca-a9830271c196/style.json?key=FhcDkqNMFIcyWPy2YFCD',
+        center: [37.6173, 55.7558],
+        zoom: 6,
+        navigationControl: false,
+        terrainControl: false,
+        scaleControl: false,
+        geolocateControl: false
+    });
+
+    map.on('load', () => {
+        map.addSource("rivers-lakes-towns", {
+            type: "vector",
+            url: "https://api.maptiler.com/tiles/019cf2b3-6029-74f2-bd67-46939a21645e/tiles.json?key=FhcDkqNMFIcyWPy2YFCD",
+            promoteId: "id"
+        });
+
+        const layersToAdd = [
+            {
+                id: "rivers6", type: "line", "source-layer": "rivers6",
+                "layout": {
+                    "line-join": "round",
+                    "line-cap": "round",
+                    "line-round-limit": 1
+                },
+                "paint": {
+                    "line-color": [
+                        "case",
+                        ["boolean", ["feature-state", "hover"], false],
+                        "#00e5ff",
+                        "hsla(252, 100%, 41%, 0.8)"
+                    ],
+                    "line-width": [
+                        "interpolate",
+                        [
+                            "cubic-bezier",
+                            0.5,
+                            0,
+                            0.5,
+                            1
+                        ],
+                        [
+                            "zoom"
+                        ],
+                        3,
+                        1,
+                        11,
+                        4
+                    ],
+                    "line-gap-width": 0
+                },
+                "filter": [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ]
+
+            },
+            {
+                id: "rivers5", type: "line", "source-layer": "rivers5",
+                "layout": {
+                    "line-join": "round",
+                    "line-cap": "butt"
+                },
+                "paint": {
+                    "line-color": "hsl(222, 100%, 61%)",
+                    "line-width": [
+                        "interpolate",
+                        [
+                            "cubic-bezier",
+                            0.5,
+                            0,
+                            0.5,
+                            1
+                        ],
+                        [
+                            "zoom"
+                        ],
+                        3,
+                        0,
+                        9,
+                        3
+                    ]
+                },
+                "filter": [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ]
+            },
+            {
+                id: "rivers4", type: "line", "source-layer": "rivers4",
+                "layout": {
+                    "line-join": "round"
+                },
+                "paint": {
+                    "line-color": "hsl(264, 100%, 50%)",
+                    "line-width": [
+                        "interpolate",
+                        [
+                            "cubic-bezier",
+                            0.5,
+                            0,
+                            0.5,
+                            1
+                        ],
+                        [
+                            "zoom"
+                        ],
+                        4,
+                        0,
+                        10,
+                        2.5
+                    ]
+                },
+                "filter": [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ]
+            },
+            {
+                id: "rivers3", type: "line", "source-layer": "rivers3",
+                "layout": {},
+                "paint": {
+                    "line-color": "hsl(197, 100%, 46%)",
+                    "line-width": [
+                        "interpolate",
+                        [
+                            "cubic-bezier",
+                            0.5,
+                            0,
+                            0.5,
+                            1
+                        ],
+                        [
+                            "zoom"
+                        ],
+                        5,
+                        0.25,
+                        9,
+                        2
+                    ]
+                },
+                "filter": [
+                    "==",
+                    [
+                        "geometry-type"
+                    ],
+                    "LineString"
+                ]
+            },
+        ];
+        layersToAdd.forEach(l => map.addLayer({ ...l, source: "rivers-lakes-towns" }));
+
+        map.addLayer({
+            id: "river-hover-glow",
+            type: "line",
+            source: "rivers-lakes-towns",
+            "source-layer": "rivers6",
+            paint: {
+                "line-color": "#00e5ff",
+                "line-width": 12,
+                "line-opacity": [
+                    "case",
+                    ["boolean", ["feature-state", "hover"], false],
+                    0.7,
+                    0
+                ],
+                "line-blur": 4
+            }
+        });
+
+        // список слоев рек
+        const riverLayers = ["rivers6", "rivers5", "rivers4", "rivers3"];
+
+        riverLayers.forEach(layer => {
+
+            // курсор pointer
+            map.on("mouseenter", layer, () => {
+                map.getCanvas().style.cursor = "pointer";
+            });
+
+            map.on("mouseleave", layer, () => {
+                map.getCanvas().style.cursor = "";
+            });
+
+            // hover эффект
+            map.on("mousemove", layer, (e) => {
+
+                map.setPaintProperty(layer, "line-width", [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    3, 3,
+                    11, 8
+                ]);
+
+            });
+
+            // вернуть обратно
+            map.on("mouseleave", layer, () => {
+
+                map.setPaintProperty(layer, "line-width", [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    3, 1,
+                    11, 4
+                ]);
+
+            });
+
+        });
+
+
+        let hoveredRiverId = null;
+
+        map.on("mousemove", "rivers6", (e) => {
+
+            if (e.features.length > 0) {
+
+                if (hoveredRiverId !== null) {
+                    map.setFeatureState(
+                        { source: "rivers-lakes-towns", sourceLayer: "rivers6", id: hoveredRiverId },
+                        { hover: false }
+                    );
+                }
+
+                hoveredRiverId = e.features[0].id;
+
+                map.setFeatureState(
+                    { source: "rivers-lakes-towns", sourceLayer: "rivers6", id: hoveredRiverId },
+                    { hover: true }
+                );
+            }
+        });
+
+        map.on("mouseleave", "rivers6", () => {
+
+            if (hoveredRiverId !== null) {
+                map.setFeatureState(
+                    { source: "rivers-lakes-towns", sourceLayer: "rivers6", id: hoveredRiverId },
+                    { hover: false }
+                );
+            }
+
+            hoveredRiverId = null;
+        });
+
+    });
+</script>
+</body>
+</html>
+
+
+
