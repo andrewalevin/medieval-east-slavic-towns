@@ -114,7 +114,7 @@
         geolocateControl: false
     });
 
-    function createLayerToggleButton(map, layers, emoji, elementIds = []) {
+    function createLayerToggleButton0(map, layers, emoji, elementIds = []) {
         let visible = true;
 
         const btn = document.createElement("button");
@@ -152,6 +152,54 @@
         return btn;
     }
 
+    function createLayerToggleButton(map, layers, emoji, elementIds = [], property = "visibility", values = ["visible", "none"], defaultState = true) {
+        let active = defaultState;
+
+        const btn = document.createElement("button");
+        btn.innerText = emoji;
+        btn.type = "button";
+
+        btn.style.transition = "filter 0.2s";
+        btn.style.filter = active ? "grayscale(0%)" : "grayscale(100%)";
+
+        if (!Array.isArray(elementIds)) {
+            elementIds = [elementIds];
+        }
+
+        // сразу применяем начальное состояние к слоям и DOM
+        layers.forEach(id => {
+            if (map.getLayer(id)) {
+                map.setLayoutProperty(id, property, active ? values[0] : values[1]);
+            }
+        });
+        elementIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.style.display = active ? "" : "none";
+            }
+        });
+
+        btn.onclick = () => {
+            active = !active;
+
+            layers.forEach(id => {
+                if (map.getLayer(id)) {
+                    map.setLayoutProperty(id, property, active ? values[0] : values[1]);
+                }
+            });
+            elementIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.style.display = active ? "" : "none";
+                }
+            });
+
+            btn.style.filter = active ? "grayscale(0%)" : "grayscale(100%)";
+        };
+
+        return btn;
+    }
+
     class ZoomControl {
         onAdd(map) {
             this._map = map;
@@ -178,12 +226,14 @@
             this._container.appendChild(labelsBtn);
 
             const riversBtn = createLayerToggleButton(map, [
-                "Rivers6", "Rivers5", "Rivers4", "Rivers3", "Rivers2", "Rivers1"
+                "Rivers6", "Rivers5", "Rivers4",
+                "Rivers3", "Rivers2", "Rivers1"
             ], "🛶");
             this._container.appendChild(riversBtn);
 
             const riversTitleBtn = createLayerToggleButton(map, [
-                "Rivers6-titles", "Rivers5-titles", "Rivers4-titles", "Rivers3-titles", "Rivers2-titles", "Rivers1-titles"
+                "Rivers6-titles", "Rivers5-titles", "Rivers4-titles",
+                "Rivers3-titles", "Rivers2-titles", "Rivers1-titles"
             ], "🔷");
             this._container.appendChild(riversTitleBtn);
 
@@ -192,6 +242,18 @@
 
             const townsBtn = createLayerToggleButton(map, ["Towns-titles"], "🏰", ['year-slider-container']);
             this._container.appendChild(townsBtn);
+
+            const townsDateBtn = createLayerToggleButton(map, ["Towns-titles"], "🎩", [], "text-field",
+                [
+                    ["coalesce", ["get", "name:ru"], ["get", "name"]],
+                    [
+                        "format", ["coalesce", ["get", "name:ru"], ["get", "name"]],
+                        { "font-scale": 1 }, "\n", {},
+                        ["case", ["boolean", ["get", "showDate"], true], ["get", "date"], ""],
+                        { "font-scale": 0.9 }
+                    ]
+                ], false);
+            this._container.appendChild(townsDateBtn);
 
             return this._container;
         }
