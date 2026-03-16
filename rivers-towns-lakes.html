@@ -13,9 +13,9 @@
     <link rel="icon" type="image/png" sizes="512x512" href="favicons/church-solo-favicon/android-chrome-512x512.png">
     <meta name="theme-color" content="#ffffff">
 
-
     <script src="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.umd.min.js"></script>
     <link href="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.css" rel="stylesheet" />
+
     <style>
         body { margin: 0; padding: 0; }
 
@@ -28,14 +28,17 @@
             bottom: 5px;
             left: 50%;
             transform: translateX(-50%);
-            width: min(600px, 95vw);
             backdrop-filter: blur(3px);
             background: rgba(255,255,255,0.5);
             border-radius: 12px;
             padding: 6px 14px;
             box-shadow: 0 10px 20px rgba(0,0,0,0.6);
             font-family: sans-serif;
-            margin: 0 1rem;
+
+            box-sizing: border-box;
+            width: 80%;
+            max-width: 600px;
+            margin: 0 auto 1rem;
         }
 
         #year-slider{
