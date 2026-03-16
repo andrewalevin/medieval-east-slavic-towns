@@ -4,12 +4,23 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Map with Separate Layer Toggles</title>
+    <title>Medieval Rivers Towns Lakes</title>
+    <link rel="icon" type="image/x-icon" href="favicons/church-solo-favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicons/church-solo-favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicons/church-solo-favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicons/church-solo-favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="favicons/church-solo-favicon/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="favicons/church-solo-favicon/android-chrome-512x512.png">
+    <meta name="theme-color" content="#ffffff">
+
+
     <script src="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.umd.min.js"></script>
     <link href="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.css" rel="stylesheet" />
     <style>
         body { margin: 0; padding: 0; }
+
         #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+
         .maplibregl-ctrl * { font-size: 1rem; }
 
         #year-slider-container {
@@ -37,18 +48,6 @@
             font-size:14px;
         }
 
-        .maplibregl-popup-content{
-            border-radius:14px;
-            padding:16px 18px 14px 18px;
-            box-shadow:0 10px 30px rgba(0,0,0,0.35);
-            max-width:240px;
-        }
-
-        .maplibregl-popup-close-button{
-            right:6px;
-            top:6px;
-            font-size:18px;
-        }
 
         .popup-title{
             text-align:center;
@@ -101,8 +100,6 @@
 <body>
 <div id="map"></div>
 <script>
-    maptilersdk.config.apiKey = "FhcDkqNMFIcyWPy2YFCD";
-
     const map = new maptilersdk.Map({
         container: 'map',
         style: 'https://api.maptiler.com/maps/019cf74c-fbd0-73ca-b739-e4cce594bfe4/style.json?key=FhcDkqNMFIcyWPy2YFCD',
@@ -149,7 +146,6 @@
             // визуальное состояние кнопки
             btn.style.filter = visible ? "grayscale(0%)" : "grayscale(100%)";
         };
-
         return btn;
     }
 
@@ -196,7 +192,6 @@
 
             return this._container;
         }
-
         onRemove() {
             this._container.parentNode.removeChild(this._container);
             this._map = undefined;
@@ -275,11 +270,7 @@
             .addTo(map);
     }
 
-    // Источник и слои рек/озер/городов
     map.on('load', () => {
-
-
-        // все кликабельные слои
         const clickableLayers = [
             "Rivers6","Rivers5","Rivers4","Rivers3","Rivers2","Rivers1",
             "Rivers6-titles","Rivers5-titles","Rivers4-titles","Rivers3-titles","Rivers2-titles","Rivers1-titles",
@@ -305,14 +296,11 @@
         slider.addEventListener("input", () => {
             const year = parseInt(slider.value);
             yearValue.innerText = year;
-            map.setFilter("Towns-titles", [
-                "<=",
-                ["to-number", ["get", "date"]],
-                year
-            ]);
-
+            map.setFilter("Towns-titles", ["<=", ["to-number", ["get", "date"]], year]);
         });
+
     });
+
 </script>
 <div id="year-slider-container">
     <input type="range" id="year-slider" min="450" max="1501" value="1501" step="1">
