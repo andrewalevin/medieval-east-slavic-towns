@@ -477,24 +477,31 @@
 
 
     map.on('load', () => {
-        const features = lines.map(line => {
-            const curvedLine = createCurvedLine(
-                towns[line.id1].coords.slice().reverse(),
-                towns[line.id2].coords.slice().reverse(),
-                line.offset, line.direction
-            );
+
+        const linesFets = lines.map(line => {
             return {
                 type: "Feature",
-                geometry: curvedLine.geometry,
-                properties: { color: colors[line.color] }
+                geometry: createCurvedLine(
+                    towns[line.id1].coords.slice().reverse(),
+                    towns[line.id2].coords.slice().reverse(),
+                    line.offset, line.direction
+                ).geometry,
+                properties: {
+                    color: colors[line.color]
+                }
             };
         });
 
-        // Линии
+
         map.addLayer({
             id: 'curved-lines',
             type: 'line',
-            source: {type: 'geojson', data: {type: "FeatureCollection", features: features}},
+            source: {
+                type: 'geojson',
+                data: {
+                    type: "FeatureCollection",
+                    features: linesFets
+                }},
             layout: { 'line-join': 'round', 'line-cap': 'round'},
             paint: {'line-color': ['get', 'color'], 'line-width': 2,}
         });
@@ -531,7 +538,7 @@
             }
         });
 
-        // Городские подписи
+
         const townFeatures = Object.values(towns).map(t => ({
             type: "Feature",
             geometry: { type: "Point", coordinates: t.coords.slice().reverse() },

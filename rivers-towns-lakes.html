@@ -260,6 +260,12 @@
             );
             this._container.appendChild(citiesMedievalBtn);
 
+
+            const matchedTownsBtn = createLayerToggleButton(map, ["Matched-towns"], "🌈️",
+                [], 'visibility', ["visible", "none"], false
+            );
+            this._container.appendChild(matchedTownsBtn);
+
             return this._container;
         }
         onRemove() {
@@ -348,7 +354,8 @@
             "Rivers6-titles","Rivers5-titles","Rivers4-titles","Rivers3-titles","Rivers2-titles","Rivers1-titles",
             "Lakes-titles",
             "Towns-titles",
-            'Cities-medieval'
+            'Cities-medieval',
+            'Matched-towns'
         ];
 
         clickableLayers.forEach(layer => {
